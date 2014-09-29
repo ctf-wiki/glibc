@@ -232,10 +232,10 @@ extern int __lll_timedlock_elision (int *futex, short *adapt_count,
    afterwards.  The kernel up to version 3.16.3 does not use the private futex
    operations for futex wake-up when the clone terminates.  */
 #define lll_wait_tid(tid) \
-  do {					\
-    __typeof (tid) __tid;		\
-    while ((__tid = (tid)) != 0)	\
-      lll_futex_wait (&(tid), __tid, LLL_SHARED);\
+  do {									      \
+    __typeof (tid) __tid;						      \
+    while ((__tid = (tid)) != 0)					      \
+      lll_futex_wait_cancel (&(tid), __tid, LLL_SHARED);		      \
   } while (0)
 
 extern int __lll_timedwait_tid (int *, const struct timespec *)

@@ -1,5 +1,17 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Remove file.
+	* sysdeps/unix/sysv/linux/x86_64/libc-cancellation.S: Remove file.
+	* sysdeps/unix/sysv/linux/x86_64/librt-cancellation.S: Remove file.
+	* sysdeps/unix/sysv/linux/x86_64/lowlevellock.h (lll_wait_tid):
+	Use cancellable futex wait call.
+	* sysdeps/unix/sysv/linux/x86_64/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+	* sysdeps/x86_64/nptl/tcb-offsets.sym (TCB_CANCELING_BITMASK):
+	Remove.
+	* sysdeps/x86_64/nptl/tls.h (THREAD_ATOMIC_CMPXCHG_VAL,
+	THREAD_ATOMIC_BIT_SET): Remove macros.
+
 	* io/creat.c (LIBC_CANCEL_HANDLED): Remove macro.
 	* io/ppoll.c (LIBC_CANCEL_HANDLED): Likewise.
 	* misc/pselect.c (LIBC_CANCEL_HANDLED): Likewise.

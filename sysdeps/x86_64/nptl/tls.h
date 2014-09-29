@@ -315,17 +315,6 @@ typedef struct
 	      abort (); })
 
 
-/* Atomic set bit.  */
-# define THREAD_ATOMIC_BIT_SET(descr, member, bit) \
-  (void) ({ if (sizeof ((descr)->member) == 4)				      \
-	      asm volatile (LOCK_PREFIX "orl %1, %%fs:%P0"		      \
-			    :: "i" (offsetof (struct pthread, member)),	      \
-			       "ir" (1 << (bit)));			      \
-	    else							      \
-	      /* Not necessary for other sizes in the moment.  */	      \
-	      abort (); })
-
-
 /* Set the stack guard field in TCB head.  */
 # define THREAD_SET_STACK_GUARD(value) \
     THREAD_SETMEM (THREAD_SELF, header.stack_guard, value)
