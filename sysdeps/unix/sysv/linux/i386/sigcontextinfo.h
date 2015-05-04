@@ -16,6 +16,11 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef _SIGCONTEXTINFO_H
+#define _SIGCONTEXTINFO_H
+
+#include <stdint.h>
+
 #define SIGCONTEXT struct sigcontext
 #define SIGCONTEXT_EXTRA_ARGS
 #define GET_PC(ctx)	((void *) ctx.eip)
@@ -48,3 +53,11 @@ do {									      \
 		      "i" (sizeof (struct sigcontext) / 4)		      \
 		    : "cc", "edi");					      \
 } while (0)
+
+static inline uintptr_t
+ucontext_get_pc (const ucontext_t *uc)
+{
+  return uc->uc_mcontext.gregs[REG_EIP];
+}
+
+#endif /* _SIGCONTEXTINFO_H  */

@@ -6,7 +6,7 @@ sysdep_routines += ioperm iopl vm86
 endif
 
 ifeq ($(subdir),elf)
-sysdep-dl-routines += libc-do-syscall
+sysdep-rtld_routines += libc-do-syscall
 sysdep-others += lddlibc4
 install-bin += lddlibc4
 endif

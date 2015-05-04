@@ -1,5 +1,14 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/i386/nptl/tls.h (THREAD_ATOMIC_BIT_SET): Remove macro.
+	* sysdeps/unix/sysv/linux/i386/Makefile
+	[$(subdir) = elf] (sysdep-rtld_routines): Add libc-do-syscall object.
+	* sysdeps/unix/sysv/linux/i386/lowlevellock.h (lll_wait_tid): Use
+	cancellable futex syscall macro.
+	* sysdeps/unix/sysv/linux/i386/syscall_cancel.S: New file.
+	* sysdeps/unix/sysv/linux/i386/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+
 	* sysdeps/unix/sysv/linux/x86_64/x32/sysdep.h (__syscall_arg_t):
 	Define type for x32.
 	(__SSC): Add platform specific macro.
