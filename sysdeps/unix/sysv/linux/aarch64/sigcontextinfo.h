@@ -16,6 +16,9 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef _SIGCONTEXTINFO_H
+#define _SIGCONTEXTINFO_H
+
 #include <stdint.h>
 #include <sys/ucontext.h>
 
@@ -33,3 +36,11 @@
   (act)->sa_flags |= SA_SIGINFO; \
   (sigaction) (sig, act, oact); \
 })
+
+static inline uintptr_t
+ucontext_get_pc (const ucontext_t *uc)
+{
+  return uc->uc_mcontext.pc;
+}
+
+#endif
