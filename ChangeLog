@@ -1,5 +1,10 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/unix/sysv/linux/arm/Makefile (CFLAGS-syscall_cancel.c): New
+	rule.
+	* sysdeps/unix/sysv/linux/arm/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+
 	* sysdeps/unix/sysv/linux/aarch64/sigcontextinfo.h (ucontext_get_pc):
 	New function.
 

@@ -30,6 +30,9 @@ endif
 ifeq ($(subdir),nptl)
 libpthread-sysdep_routines += libc-do-syscall
 libpthread-shared-only-routines += libc-do-syscall
+
+# INLINE_SYSCALL uses the helper __libc_do_syscall in thumb mode.
+CFLAGS-syscall_cancel.c += -marm
 endif
 
 ifeq ($(subdir),resolv)
