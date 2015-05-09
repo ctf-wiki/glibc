@@ -1,5 +1,13 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/unix/sysv/linux/x86_64/x32/sysdep.h (__syscall_arg_t):
+	Define type for x32.
+	(__SSC): Add platform specific macro.
+	* include/libc-pointer-arith.h (__integer_if_pointer_type_sub,
+	__integer_if_pointer_type, cast_to_integer): Parametrize integer type
+	cast.
+	(cast_to_uinteger): New macro.
+
 	* sysdeps/unix/sysv/linux/x86_64/cancellation.S: Remove file.
 	* sysdeps/unix/sysv/linux/x86_64/libc-cancellation.S: Remove file.
 	* sysdeps/unix/sysv/linux/x86_64/librt-cancellation.S: Remove file.
