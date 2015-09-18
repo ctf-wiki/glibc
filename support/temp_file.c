@@ -86,6 +86,29 @@ create_temp_file (const char *base, char **filename)
   return fd;
 }
 
+int
+support_create_temp_fifo (const char *base, char **fifoname)
+{
+  char *fname = xasprintf ("%s/%sXXXXXX", test_dir, base);
+  mktemp (fname);
+
+  int fd = mkfifo (fname, 0600);
+  if (fd == -1)
+    {
+      printf ("cannot open temporary fifo '%s': %m\n", fname);
+      free (fname);
+      return -1;
+    }
+
+  add_temp_file (fname);
+  if (fifoname != NULL)
+    *fifoname = fname;
+  else
+    free (fname);
+
+  return fd;
+}
+
 char *
 support_create_temp_directory (const char *base)
 {

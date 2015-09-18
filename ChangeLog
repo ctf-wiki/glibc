@@ -1,5 +1,90 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* io/creat.c (LIBC_CANCEL_HANDLED): Remove macro.
+	* io/ppoll.c (LIBC_CANCEL_HANDLED): Likewise.
+	* misc/pselect.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/posix/pause.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/posix/sigpause.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/unix/sysv/linux/creat.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/unix/sysv/linux/creat64.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/unix/sysv/linux/sigwait.c (LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/unix/sysv/linux/sigwaitinfo.c (LIBC_CANCEL_HANDLED): Likewise.
+	* manual/llio.texi: Adjust comments regarding pthread_enable_asynccancel and
+	pthread_disable_asynccancel.
+	* nptl/Makefile (routines): Add syscall_cancel object.
+	(libpthread-routines): Remove cancellation object.
+	(CFLAGS-cancellation.c): Remove rule.
+	(CFLAGS-syscall_cancel.c): New rule.
+	(tests): Add tst-cancel28.
+	* nptl/Versions [GLIBC_PRIVATE] (libc): Add __syscall_cancel,
+	__syscall_cancel_arch_start, and __syscall_cancel_arch_end.
+	* nptl/cancellation.c: Remove file.
+	* sysdeps/nptl/librt-cancellation.c: Likewise.
+	* nptl/descr.h (CANCELING_BIT, CANCELING_BITMASK): Remove define.
+	(CANCELED_BIT, EXITING_BIT, TERMINATED_BIT, SETXID_BIT,
+	CANCEL_RESTMASK): Adjust value with CANCELED_BIT removal.
+	* nptl/libc-cancellation.c (__syscall_cancel): Add non-cancellable
+	implementation for loader and cancellable one for libc.
+	(__syscall_do_cancel): New function: cancel call for syscall wrappers.
+	* nptl/lll_timedlock_wait.c (__lll_timedlock_wait): Use cancellable
+	futex operation.
+	* sysdeps/nptl/lowlevellock.h (lll_wait_tid): Likewise.
+	* sysdeps/sparc/sparc32/lowlevellock.c (__lll_timedwait_tid): Likewise.
+	* nptl/lll_timedwait_tid.c (__lll_timedwait_tid): Likewise.
+	* nptl/nptl-init.c (sigcancel_handler): Rewrite function to avoid race
+	conditions.
+	(__pthread_initialize_minimal_internal): Add SA_RESTART to SIGCANCEL
+	handler.
+	* nptl/pthreadP.h (__do_cancel): Rewrite to both disable asynchronous
+	cancellation and setting the thread as cancelled.
+	(CANCEL_ASYNC, CANCEL_RESET, LIBC_CANCEL_ASYNC, LIBC_CANCEL_RESET,
+	LIBC_CANCEL_HANDLED): Remove macros.
+	(__syscall_cancel_arch, __syscall_do_cancel): New prototypes.
+	(__pthread_enable_asynccancel, __pthread_disable_asynccancel,
+	__libc_enable_asynccancel, __libc_disable_asynccancel,
+	__librt_enable_asynccancel, __librt_disable_asynccancel): Remove
+	prototypes.
+	* nptl/pthread_cancel.c (pthread_cancel): Rewrite to just set
+	CANCELLED_BIT and call __pthread_kill.
+	* nptl/pthread_create.c (start_thread): Likewise.
+	* nptl/pthread_exit.c (__pthread_exit): Likewise.
+	* nptl/pthread_join.c (__pthread_join): Likewise.
+	* nptl/pthread_timedjoin.c (pthread_timedjoin_np): Likewise.
+	* nptl/sem_wait.c (__old_sem_wait): Likewise.
+	* sysdeps/nptl/aio_misc.h (AIO_MISC_WAIT): Likewise.
+	* sysdeps/nptl/gai_misc.h (GAI_MISC_WAIT): Likewise.
+	* nptl/tst-cancel28.c: New file.
+	* sysdeps/unix/sysv/linux/syscall_cancel.c: Likewise.
+	* rt/Makefile [CFLAGS-librt-cancellation.c]: Remove rule.
+	* support/temp_file.c (support_create_temp_fifo): New function.
+	* support/temp_file.h (support_create_temp_fifo): New prototype.
+	* sysdeps/generic/sigcontextinfo.h (ucontext_get_pc): Likewise.
+	* sysdeps/generic/sysdep-cancel.h (LIBC_CANCEL_ASYNC): Remove define.
+	(LIBC_CANCEL_RESET): Likewise.
+	(LIBC_CANCEL_HANDLED): Likewise.
+	* sysdeps/nptl/Makefile [$(subdir) = rt] (librt-sysdep_routines):
+	Remove librt-cancellation object.
+	[$(subdir) = rt] (librt-cancellation.c): Remove rule.
+	* sysdeps/posix/open64.c (__libc_open64): Do not call cancelation macros.
+	* sysdeps/posix/sigwait.c (__sigwait): Likewise.
+	* sysdeps/posix/waitid.c (__waitid): Likewise.
+	* sysdeps/unix/sysv/linux/clock_nanosleep.c (__clock_nanosleep): Likewise.
+	* sysdeps/unix/sysdep.h (SYSCALL_CANCEL): Rewrite to call __syscall_cancel.
+	(INTERNAL_SYSCALL_NCS_CALL, __INTERNAL_SYSCALL_NCS*, __SYSCALL_CANCEL*): New
+	macros.
+	* sysdeps/unix/sysv/linux/futex-internal.h (futex_wait_cancel,
+	futex_reltimed_wait_cancelable, futex_abstimed_wait_cancelable): Use
+	cancelable low level futex wrappers.
+	* sysdeps/unix/sysv/linux/lowlevellock-futex.h (lll_futex_syscall_cp,
+	lll_futex_wait_cancel, lll_futex_timed_wait_cancel,
+	lll_futex_timed_wait_bitset_cancel): New macros.
+	* sysdeps/unix/sysv/linux/pthread_kill.c (__pthread_kill): Allow
+	SIGCANCEL to be sent.
+	* sysdeps/unix/sysv/linux/socketcall.h (SOCKETCALL): Use __SSC macros.
+	(SOCKETCALL_CANCEL): Use SYSCALL_CANCEL macros.
+	(__SOCKETCALL_CANCEL*): New macros.
+	* sysdeps/unix/sysv/linux/sysdep.h (SYSCALL_CANCEL_RET): New macro.
+
 	* debug/tst-backtrace5.c (handle_signal): Check for syscall
 	instead of read.
 	(fn): Issue the read syscall instead of call the cancellable

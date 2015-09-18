@@ -30,7 +30,7 @@ install-lib-ldscripts := libpthread.so
 
 routines = alloca_cutoff forward libc-lowlevellock libc-cancellation \
 	   libc-cleanup libc_pthread_init libc_multiple_threads \
-	   register-atfork unregister-atfork
+	   register-atfork unregister-atfork syscall_cancel
 shared-only-routines = forward
 
 # We need to provide certain routines for compatibility with existing
@@ -116,7 +116,6 @@ libpthread-routines = nptl-init vars events version pt-interp \
 		      cleanup cleanup_defer cleanup_compat \
 		      cleanup_defer_compat unwind \
 		      pt-longjmp pt-cleanup\
-		      cancellation \
 		      lowlevellock \
 		      lll_timedlock_wait lll_timedwait_tid \
 		      pt-fork pt-vfork \
@@ -165,7 +164,6 @@ CFLAGS-pthread_setcanceltype.c = -fexceptions -fasynchronous-unwind-tables
 
 # These are internal functions which similar functionality as setcancelstate
 # and setcanceltype.
-CFLAGS-cancellation.c = -fasynchronous-unwind-tables
 CFLAGS-libc-cancellation.c = -fasynchronous-unwind-tables
 
 # Calling pthread_exit() must cause the registered cancel handlers to
@@ -224,6 +222,8 @@ CFLAGS-fsync.c = -fexceptions -fasynchronous-unwind-tables
 
 CFLAGS-pt-system.c = -fexceptions
 
+CFLAGS-syscall_cancel.c = -fexceptions -fasynchronous-unwind-tables
+
 LDLIBS-tst-once5 = -lstdc++
 CFLAGS-tst-thread_local1.o = -std=gnu++11
 LDLIBS-tst-thread_local1 = -lstdc++
@@ -272,7 +272,7 @@ tests = tst-attr1 tst-attr2 tst-attr3 tst-default-attr \
 	tst-cancel11 tst-cancel12 tst-cancel13 tst-cancel14 tst-cancel15 \
 	tst-cancel16 tst-cancel17 tst-cancel18 tst-cancel19 tst-cancel20 \
 	tst-cancel21 tst-cancel22 tst-cancel23 tst-cancel24 tst-cancel25 \
-	tst-cancel26 tst-cancel27 \
+	tst-cancel26 tst-cancel27 tst-cancel28 \
 	tst-cancel-self tst-cancel-self-cancelstate \
 	tst-cancel-self-canceltype tst-cancel-self-testcancel \
 	tst-cleanup0 tst-cleanup1 tst-cleanup2 tst-cleanup3 tst-cleanup4 \

@@ -35,7 +35,7 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
 {
   struct pthread *self;
   struct pthread *pd = (struct pthread *) threadid;
-  int result;
+  int result, ct;
 
   /* Make sure the descriptor is valid.  */
   if (INVALID_NOT_TERMINATED_TD_P (pd))
@@ -72,15 +72,12 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
   pthread_cleanup_push (cleanup, &pd->joinid);
 
   /* Switch to asynchronous cancellation.  */
-  int oldtype = CANCEL_ASYNC ();
-
+  __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &ct);
 
   /* Wait for the child.  */
   result = lll_timedwait_tid (pd->tid, abstime);
 
-
-  /* Restore cancellation mode.  */
-  CANCEL_RESET (oldtype);
+  __pthread_setcanceltype (ct, NULL);
 
   /* Remove the handler.  */
   pthread_cleanup_pop (0);

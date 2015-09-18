@@ -52,7 +52,7 @@ __pthread_join (pthread_t threadid, void **thread_return)
     return EINVAL;
 
   struct pthread *self = THREAD_SELF;
-  int result = 0;
+  int result = 0, ct;
 
   LIBC_PROBE (pthread_join, 1, threadid);
 
@@ -62,12 +62,12 @@ __pthread_join (pthread_t threadid, void **thread_return)
   pthread_cleanup_push (cleanup, &pd->joinid);
 
   /* Switch to asynchronous cancellation.  */
-  int oldtype = CANCEL_ASYNC ();
+  __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &ct);
 
   if ((pd == self
        || (self->joinid == pd
 	   && (pd->cancelhandling
-	       & (CANCELING_BITMASK | CANCELED_BITMASK | EXITING_BITMASK
+	       & (CANCELED_BITMASK | EXITING_BITMASK
 		  | TERMINATED_BITMASK)) == 0))
       && !CANCEL_ENABLED_AND_CANCELED (self->cancelhandling))
     /* This is a deadlock situation.  The threads are waiting for each
@@ -89,9 +89,7 @@ __pthread_join (pthread_t threadid, void **thread_return)
     /* Wait for the child.  */
     lll_wait_tid (pd->tid);
 
-
-  /* Restore cancellation mode.  */
-  CANCEL_RESET (oldtype);
+  __pthread_setcanceltype (ct, NULL);
 
   /* Remove the handler.  */
   pthread_cleanup_pop (0);

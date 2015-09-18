@@ -83,10 +83,7 @@ static __always_inline int
 futex_wait_cancelable (unsigned int *futex_word, unsigned int expected,
 		       int private)
 {
-  int oldtype;
-  oldtype = __pthread_enable_asynccancel ();
-  int err = lll_futex_timed_wait (futex_word, expected, NULL, private);
-  __pthread_disable_asynccancel (oldtype);
+  int err = lll_futex_timed_wait_cancel (futex_word, expected, NULL, private);
   switch (err)
     {
     case 0:
@@ -137,10 +134,7 @@ futex_reltimed_wait_cancelable (unsigned int *futex_word,
 				unsigned int expected,
 			        const struct timespec *reltime, int private)
 {
-  int oldtype;
-  oldtype = __pthread_enable_asynccancel ();
-  int err = lll_futex_timed_wait (futex_word, expected, reltime, private);
-  __pthread_disable_asynccancel (oldtype);
+  int err = lll_futex_timed_wait_cancel (futex_word, expected, reltime, private);
   switch (err)
     {
     case 0:
@@ -200,11 +194,9 @@ futex_abstimed_wait_cancelable (unsigned int *futex_word,
      despite them being valid.  */
   if (__glibc_unlikely ((abstime != NULL) && (abstime->tv_sec < 0)))
     return ETIMEDOUT;
-  int oldtype;
-  oldtype = __pthread_enable_asynccancel ();
-  int err = lll_futex_timed_wait_bitset (futex_word, expected, abstime,
-					 FUTEX_CLOCK_REALTIME, private);
-  __pthread_disable_asynccancel (oldtype);
+  int err = lll_futex_timed_wait_bitset_cancel (futex_word, expected, abstime,
+						FUTEX_CLOCK_REALTIME,
+						private);
   switch (err)
     {
     case 0:

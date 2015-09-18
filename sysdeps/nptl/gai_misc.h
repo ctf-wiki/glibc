@@ -35,31 +35,24 @@
 
 #define GAI_MISC_WAIT(result, futex, timeout, cancel) \
   do {									      \
-    volatile unsigned int *futexaddr = &futex;				      \
+    unsigned int *futexaddr = (unsigned int *)&futex;			      \
     unsigned int oldval = futex;					      \
 									      \
     if (oldval != 0)							      \
       {									      \
 	pthread_mutex_unlock (&__gai_requests_mutex);			      \
 									      \
-	int oldtype;							      \
-	if (cancel)							      \
-	  oldtype = LIBC_CANCEL_ASYNC ();				      \
-									      \
 	int status;							      \
 	do								      \
 	  {								      \
-	    status = futex_reltimed_wait ((unsigned int *) futexaddr, oldval, \
-					  timeout, FUTEX_PRIVATE);	      \
+	    status = futex_reltimed_wait_cancelable (futexaddr, oldval,	      \
+						     timeout, FUTEX_PRIVATE); \
 	    if (status != EAGAIN)					      \
 	      break;							      \
 									      \
 	    oldval = *futexaddr;					      \
 	  }								      \
 	while (oldval != 0);						      \
-									      \
-	if (cancel)							      \
-	  LIBC_CANCEL_RESET (oldtype);					      \
 									      \
 	if (status == EINTR)						      \
 	  result = EINTR;						      \

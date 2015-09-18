@@ -62,7 +62,8 @@ __lll_timedwait_tid (int *tidp, const struct timespec *abstime)
          The kernel up to version 3.16.3 does not use the private futex
          operations for futex wake-up when the clone terminates.
       */
-      if (lll_futex_timed_wait (tidp, tid, &rt, LLL_SHARED) == -ETIMEDOUT)
+      if (lll_futex_timed_wait_cancel (tidp, tid, &rt, LLL_SHARED)
+	  == -ETIMEDOUT)
         return ETIMEDOUT;
     }
 

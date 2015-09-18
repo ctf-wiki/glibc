@@ -52,7 +52,7 @@ __lll_timedlock_wait (int *futex, const struct timespec *abstime, int private)
         return ETIMEDOUT;
 
       /* If *futex == 2, wait until woken or timeout.  */
-      lll_futex_timed_wait (futex, 2, &rt, private);
+      lll_futex_timed_wait_cancel (futex, 2, &rt, private);
     }
 
   return 0;

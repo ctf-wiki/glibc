@@ -180,12 +180,13 @@ extern int __lll_timedlock_wait (int *futex, const struct timespec *,
    wake-up when the clone terminates.  The memory location contains the
    thread ID while the clone is running and is reset to zero by the kernel
    afterwards.  The kernel up to version 3.16.3 does not use the private futex
-   operations for futex wake-up when the clone terminates.  */
+   operations for futex wake-up when the clone terminates.
+   Both lll_wait_tid and lll_timewait_tid acts as cancellation points.  */
 #define lll_wait_tid(tid) \
   do {					\
     __typeof (tid) __tid;		\
     while ((__tid = (tid)) != 0)	\
-      lll_futex_wait (&(tid), __tid, LLL_SHARED);\
+      lll_futex_wait_cancel (&(tid), __tid, LLL_SHARED);\
   } while (0)
 
 extern int __lll_timedwait_tid (int *, const struct timespec *)
