@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <sys/syscall.h>
 #include <signal.h>
 #include <unistd.h>
 
@@ -33,7 +34,7 @@
 #endif
 
 /* The backtrace should include at least handle_signal, a signal
-   trampoline, read, 3 * fn, and do_test.  */
+   trampoline, syscall, 3 * fn, and do_test.  */
 #define NUM_FUNCTIONS 7
 
 void
@@ -71,15 +72,17 @@ handle_signal (int signum)
     }
   /* Do not check name for signal trampoline.  */
   i = 2;
-  if (!match (symbols[i++], "read"))
+
+  if (match (symbols[i], "__kernel_vsyscall"))
+    i++;
+
+  /* We are using syscall(...) instead of read.  */
+  if (!match (symbols[i++], "syscall"))
     {
-      /* Perhaps symbols[2] is __kernel_vsyscall?  */
-      if (!match (symbols[i++], "read"))
-	{
-	  FAIL ();
-	  return;
-	}
+      FAIL ();
+      return;
     }
+
   for (; i < n - 1; i++)
     if (!match (symbols[i], "fn"))
       {
@@ -123,8 +126,11 @@ fn (int c, int flags)
       _exit (0);
     }
 
-  /* In the parent.  */
-  read (pipefd[0], r, 1);
+  /* To avoid need to handle cancellation syscall backtrace (which call
+     the function using both the generic bridge (__syscall_cancel) and
+     the architecture defined one (__syscall_cancel_arch), issue the
+     syscall directly.  */
+  syscall (__NR_read, pipefd[0], r, 1);
 
   return 0;
 }

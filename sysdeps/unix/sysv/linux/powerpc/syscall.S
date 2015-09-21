@@ -19,6 +19,14 @@
 
 ENTRY (syscall)
 	ABORT_TRANSACTION
+	/* Creates a minimum stack frame so backtrace.  */
+#ifdef __powerpc64__
+	stdu r1, -FRAME_MIN_SIZE (r1)
+	cfi_adjust_cfa_offset (FRAME_MIN_SIZE)
+#else
+	stwu r1,-16(1)
+	cfi_def_cfa_offset (16)
+#endif
 	mr   r0,r3
 	mr   r3,r4
 	mr   r4,r5
@@ -26,6 +34,12 @@ ENTRY (syscall)
 	mr   r6,r7
 	mr   r7,r8
 	mr   r8,r9
+#ifdef __powerpc64__
+	addi r1, r1, FRAME_MIN_SIZE
+#else
+	addi r1,r1,16
+#endif
+        cfi_def_cfa_offset (0)
 	sc
 	PSEUDO_RET
 PSEUDO_END (syscall)
