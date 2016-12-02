@@ -1,3 +1,13 @@
+2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
+
+	* sysdeps/unix/sysv/linux/alpha/bits/pthreadtypes.h: Move to ...
+	* sysdeps/alpha/nptl/bits/pthreadtypes.h: ... here.
+	* sysdeps/unix/sysv/linux/powerpc/bits/pthreadtypes.h: Move to ...
+	* sysdeps/powerpc/nptl/bits/pthreadtypes.h: ... here.
+	* sysdeps/x86/bits/pthreadtypes.h: Move to ...
+	* sysdeps/x86/nptl/bits/pthreadtypes.h: ... here.
+	* sysdeps/unix/sysv/linux/x86/Implies: New file.
+
 2017-01-24  James Clarke  <jrtc27@jrtc27.com>
 
 	[BZ #21053]
