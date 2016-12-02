@@ -48,3 +48,4 @@ L(skip):
 PSEUDO_END (__mmap)
 
 weak_alias (__mmap, mmap)
+libc_hidden_def (__mmap)

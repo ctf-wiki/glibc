@@ -28,8 +28,9 @@ __mmap (__ptr_t addr, size_t len, int prot, int flags, int fd, off_t offset)
   /* To handle negative offsets consistently with other architectures,
      the offset must be zero-extended to 64-bit.  */
   uint64_t offset_adj = (uint64_t) (uint32_t) offset;
-  return (__ptr_t) INLINE_SYSCALL (mmap, 6, addr, len, prot, flags, fd,
-				   offset_adj);
+  return (__ptr_t) INLINE_SYSCALL_CALL (mmap, addr, len, prot, flags, fd,
+					offset_adj);
 }
 
 weak_alias (__mmap, mmap)
+libc_hidden_def (__mmap)

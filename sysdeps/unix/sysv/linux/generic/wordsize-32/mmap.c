@@ -33,8 +33,9 @@ __mmap (__ptr_t addr, size_t len, int prot, int flags, int fd, off_t offset)
       __set_errno (EINVAL);
       return MAP_FAILED;
     }
-  return (__ptr_t) INLINE_SYSCALL (mmap2, 6, addr, len, prot, flags, fd,
-                                   offset / MMAP_PAGE_UNIT);
+  return (__ptr_t) INLINE_SYSCALL_CALL (mmap2, addr, len, prot, flags, fd,
+					offset / MMAP_PAGE_UNIT);
 }
 
 weak_alias (__mmap, mmap)
+libc_hidden_def (__mmap)

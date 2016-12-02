@@ -31,10 +31,12 @@ __ptr_t
 __mmap (__ptr_t addr, size_t len, int prot, int flags, int fd, off_t offset)
 {
   MMAP_PREPARE (addr, len, prot, flags, fd, offset);
-  return (__ptr_t) INLINE_SYSCALL (mmap, 6, addr, len, prot, flags,
-				   fd, offset);
+  return (__ptr_t) INLINE_SYSCALL_CALL (mmap, addr, len, prot, flags,
+					fd, offset);
 }
 
 weak_alias (__mmap, mmap)
+libc_hidden_def (__mmap)
 weak_alias (__mmap, mmap64)
 weak_alias (__mmap, __mmap64)
+libc_hidden_def (__mmap64)

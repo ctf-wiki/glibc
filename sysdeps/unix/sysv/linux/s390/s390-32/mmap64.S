@@ -79,3 +79,4 @@ ENTRY(__mmap64)
 PSEUDO_END (__mmap64)
 
 weak_alias (__mmap64, mmap64)
+libc_hidden_def (__mmap64)

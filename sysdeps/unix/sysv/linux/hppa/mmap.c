@@ -47,3 +47,4 @@ __mmap (__ptr_t addr, size_t len, int prot, int flags, int fd, off_t offset)
 }
 
 weak_alias (__mmap, mmap)
+libc_hidden_def (__mmap)

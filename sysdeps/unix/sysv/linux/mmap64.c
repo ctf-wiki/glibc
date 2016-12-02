@@ -49,9 +49,9 @@ __mmap64 (void *addr, size_t len, int prot, int flags, int fd, off64_t offset)
     return (void *) INLINE_SYSCALL_ERROR_RETURN_VALUE (EINVAL);
   void *result;
   result = (void *)
-    INLINE_SYSCALL (mmap2, 6, addr,
-		    len, prot, flags, fd,
-		    (off_t) (offset >> page_shift));
+    INLINE_SYSCALL_CALL (mmap2, addr, len, prot, flags, fd,
+			 (off_t) (offset >> page_shift));
   return result;
 }
 weak_alias (__mmap64, mmap64)
+libc_hidden_def (__mmap64)
