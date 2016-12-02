@@ -19,11 +19,10 @@
 #define _BITS_PTHREADTYPES_H	1
 
 #include <endian.h>
+#include <bits/pthreadtypes-common.h>
 
 #define __SIZEOF_PTHREAD_ATTR_T 36
-#define __SIZEOF_PTHREAD_MUTEX_T 24
 #define __SIZEOF_PTHREAD_MUTEXATTR_T 4
-#define __SIZEOF_PTHREAD_COND_T 48
 #define __SIZEOF_PTHREAD_COND_COMPAT_T 12
 #define __SIZEOF_PTHREAD_CONDATTR_T 4
 #define __SIZEOF_PTHREAD_RWLOCK_T 32
@@ -48,38 +47,8 @@ typedef union pthread_attr_t pthread_attr_t;
 #endif
 
 
-typedef struct __pthread_internal_slist
-{
-  struct __pthread_internal_slist *__next;
-} __pthread_slist_t;
-
-
 /* Data structures for mutex handling.  The structure of the attribute
    type is not exposed on purpose.  */
-typedef union
-{
-  struct __pthread_mutex_s
-  {
-    int __lock;
-    unsigned int __count;
-    int __owner;
-    /* KIND must stay at this position in the structure to maintain
-       binary compatibility with static initializers.  */
-    int __kind;
-    unsigned int __nusers;
-    __extension__ union
-    {
-      int __spins;
-      __pthread_slist_t __list;
-    };
-  } __data;
-  char __size[__SIZEOF_PTHREAD_MUTEX_T];
-  long int __align;
-} pthread_mutex_t;
-
-/* Mutex __spins initializer used by PTHREAD_MUTEX_INITIALIZER.  */
-#define __PTHREAD_SPINS 0
-
 typedef union
 {
   char __size[__SIZEOF_PTHREAD_MUTEXATTR_T];
@@ -89,36 +58,6 @@ typedef union
 
 /* Data structure for conditional variable handling.  The structure of
    the attribute type is not exposed on purpose.  */
-typedef union
-{
-  struct
-  {
-    __extension__ union
-    {
-      __extension__ unsigned long long int __wseq;
-      struct {
-	unsigned int __low;
-	unsigned int __high;
-      } __wseq32;
-    };
-    __extension__ union
-    {
-      __extension__ unsigned long long int __g1_start;
-      struct {
-	unsigned int __low;
-	unsigned int __high;
-      } __g1_start32;
-    };
-    unsigned int __g_refs[2];
-    unsigned int __g_size[2];
-    unsigned int __g1_orig_size;
-    unsigned int __wrefs;
-    unsigned int __g_signals[2];
-  } __data;
-  char __size[__SIZEOF_PTHREAD_COND_T];
-  __extension__ long long int __align;
-} pthread_cond_t;
-
 typedef union
 {
   char __size[__SIZEOF_PTHREAD_CONDATTR_T];

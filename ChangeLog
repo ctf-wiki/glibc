@@ -1,5 +1,43 @@
 2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* posix/Makefile (headers): Add files bits/pthreadtypes-common.h
+	and bits/thread-shared-types.h to this variable.
+	* bits/pthreadtypes-common.h: New file.
+	* bits/thread-shared-types.: Likewise.
+	* sysdeps/aarch64/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/alpha/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/arm/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/hppa/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/ia64/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/m68k/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/microblaze/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/mips/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/nios2/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/powerpc/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/s390/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/sh/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/sparc/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/tile/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/x86/nptl/bits/thread-shared-types.h: Likewise.
+	* sysdeps/aarch64/nptl/bits/pthreadtypes.h: Move mutex and condition
+	variable definition to platform specific thread-shared-types header.
+	* sysdeps/alpha/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/arm/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/hppa/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/ia64/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/m68k/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/microblaze/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/mips/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/nios2/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/powerpc/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/s390/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/sh/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/sparc/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/tile/nptl/bits/pthreadtypes.h: Likewise.
+	* sysdeps/x86/nptl/bits/pthreadtypes.h: Likewise.
+
+2017-01-10  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
+
 	* sysdeps/i386/nptl/tls.h (CALL_THREAD_FCT): Remove macro.
 	* sysdeps/x86_64/nptl/tls.h (CALL_THREAD_FCT): Likewise.
 	* sysdeps/x86_64/x32/nptl/tls.h: Remove file.

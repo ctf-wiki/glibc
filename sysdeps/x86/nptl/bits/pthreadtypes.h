@@ -19,40 +19,30 @@
 #define _BITS_PTHREADTYPES_H	1
 
 #include <bits/wordsize.h>
+#include <bits/pthreadtypes-common.h>
 
 #ifdef __x86_64__
 # if __WORDSIZE == 64
 #  define __SIZEOF_PTHREAD_ATTR_T 56
 #  define __SIZEOF_PTHREAD_MUTEX_T 40
-#  define __SIZEOF_PTHREAD_MUTEXATTR_T 4
-#  define __SIZEOF_PTHREAD_COND_T 48
-#  define __SIZEOF_PTHREAD_CONDATTR_T 4
 #  define __SIZEOF_PTHREAD_RWLOCK_T 56
-#  define __SIZEOF_PTHREAD_RWLOCKATTR_T 8
 #  define __SIZEOF_PTHREAD_BARRIER_T 32
-#  define __SIZEOF_PTHREAD_BARRIERATTR_T 4
 # else
 #  define __SIZEOF_PTHREAD_ATTR_T 32
 #  define __SIZEOF_PTHREAD_MUTEX_T 32
-#  define __SIZEOF_PTHREAD_MUTEXATTR_T 4
-#  define __SIZEOF_PTHREAD_COND_T 48
-#  define __SIZEOF_PTHREAD_CONDATTR_T 4
 #  define __SIZEOF_PTHREAD_RWLOCK_T 44
-#  define __SIZEOF_PTHREAD_RWLOCKATTR_T 8
 #  define __SIZEOF_PTHREAD_BARRIER_T 20
-#  define __SIZEOF_PTHREAD_BARRIERATTR_T 4
 # endif
 #else
 # define __SIZEOF_PTHREAD_ATTR_T 36
 # define __SIZEOF_PTHREAD_MUTEX_T 24
-# define __SIZEOF_PTHREAD_MUTEXATTR_T 4
-# define __SIZEOF_PTHREAD_COND_T 48
-# define __SIZEOF_PTHREAD_CONDATTR_T 4
 # define __SIZEOF_PTHREAD_RWLOCK_T 32
-# define __SIZEOF_PTHREAD_RWLOCKATTR_T 8
 # define __SIZEOF_PTHREAD_BARRIER_T 20
-# define __SIZEOF_PTHREAD_BARRIERATTR_T 4
 #endif
+#define __SIZEOF_PTHREAD_MUTEXATTR_T 4
+#define __SIZEOF_PTHREAD_CONDATTR_T 4
+#define __SIZEOF_PTHREAD_RWLOCKATTR_T 8
+#define __SIZEOF_PTHREAD_BARRIERATTR_T 4
 
 
 /* Thread identifiers.  The structure of the attribute type is not
@@ -71,62 +61,8 @@ typedef union pthread_attr_t pthread_attr_t;
 #endif
 
 
-#ifdef __x86_64__
-typedef struct __pthread_internal_list
-{
-  struct __pthread_internal_list *__prev;
-  struct __pthread_internal_list *__next;
-} __pthread_list_t;
-#else
-typedef struct __pthread_internal_slist
-{
-  struct __pthread_internal_slist *__next;
-} __pthread_slist_t;
-#endif
-
-
 /* Data structures for mutex handling.  The structure of the attribute
    type is not exposed on purpose.  */
-typedef union
-{
-  struct __pthread_mutex_s
-  {
-    int __lock;
-    unsigned int __count;
-    int __owner;
-#ifdef __x86_64__
-    unsigned int __nusers;
-#endif
-    /* KIND must stay at this position in the structure to maintain
-       binary compatibility with static initializers.  */
-    int __kind;
-#ifdef __x86_64__
-    short __spins;
-    short __elision;
-    __pthread_list_t __list;
-# define __PTHREAD_MUTEX_HAVE_PREV	1
-/* Mutex __spins initializer used by PTHREAD_MUTEX_INITIALIZER.  */
-# define __PTHREAD_SPINS             0, 0
-#else
-    unsigned int __nusers;
-    __extension__ union
-    {
-      struct
-      {
-	short __espins;
-	short __elision;
-# define __spins __elision_data.__espins
-# define __elision __elision_data.__elision
-# define __PTHREAD_SPINS         { 0, 0 }
-      } __elision_data;
-      __pthread_slist_t __list;
-    };
-#endif
-  } __data;
-  char __size[__SIZEOF_PTHREAD_MUTEX_T];
-  long int __align;
-} pthread_mutex_t;
-
 typedef union
 {
   char __size[__SIZEOF_PTHREAD_MUTEXATTR_T];
@@ -136,36 +72,6 @@ typedef union
 
 /* Data structure for conditional variable handling.  The structure of
    the attribute type is not exposed on purpose.  */
-typedef union
-{
-  struct
-  {
-    __extension__ union
-    {
-      __extension__ unsigned long long int __wseq;
-      struct {
-	unsigned int __low;
-	unsigned int __high;
-      } __wseq32;
-    };
-    __extension__ union
-    {
-      __extension__ unsigned long long int __g1_start;
-      struct {
-	unsigned int __low;
-	unsigned int __high;
-      } __g1_start32;
-    };
-    unsigned int __g_refs[2];
-    unsigned int __g_size[2];
-    unsigned int __g1_orig_size;
-    unsigned int __wrefs;
-    unsigned int __g_signals[2];
-  } __data;
-  char __size[__SIZEOF_PTHREAD_COND_T];
-  __extension__ long long int __align;
-} pthread_cond_t;
-
 typedef union
 {
   char __size[__SIZEOF_PTHREAD_CONDATTR_T];
