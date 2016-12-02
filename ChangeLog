@@ -1,5 +1,107 @@
 2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* conform/Makefile (conformtest-headers-ISO11): Add threads.h.
+	(linknamespace-libs-ISO11): Add libpthread.a.
+	* include/stdc-predef.h (__STDC_NO_THREADS__): Remove definition.
+	* nptl/Makefile (headers): Add threads.h.
+	(libpthread-routines): Add new C11 thread objects.
+	* nptl/Versions (libpthread) [GLIBC_2.25]): Add C11 thread symbols.
+	* conform/data/threads.h-data: New file.
+	* nptl/call_once.c: Likewise.
+	* nptl/cnd_broadcast.c: Likewise.
+	* nptl/cnd_destroy.c: Likewise.
+	* nptl/cnd_init.c: Likewise.
+	* nptl/cnd_signal.c: Likewise.
+	* nptl/cnd_timedwait.c: Likewise.
+	* nptl/cnd_wait.c: Likewise.
+	* nptl/mtx_destroy.c: Likewise.
+	* nptl/mtx_init.c: Likewise.
+	* nptl/mtx_lock.c: Likewise.
+	* nptl/mtx_timedlock.c: Likewise.
+	* nptl/mtx_trylock.c: Likewise.
+	* nptl/mtx_unlock.c: Likewise.
+	* nptl/thrd_create.c: Likewise.
+	* nptl/thrd_current.c: Likewise.
+	* nptl/thrd_detach.c: Likewise.
+	* nptl/thrd_equal.c: Likewise.
+	* nptl/thrd_exit.c: Likewise.
+	* nptl/thrd_join.c: Likewise.
+	* nptl/thrd_priv.h: Likewise.
+	* nptl/thrd_sleep.c: Likewise.
+	* nptl/thrd_yield.c: Likewise.
+	* nptl/tss_create.c: Likewise.
+	* nptl/tss_delete.c: Likewise.
+	* nptl/tss_get.c: Likewise.
+	* nptl/tss_set.c: Likewise.
+	* nptl/descr.h (pthread): Add c11 field.
+	* nptl/pthreadP.h (ATTR_C11_THREAD): New define.
+	* nptl/pthread_create.c (START_THREAD_DEFN): Call C11 thread start
+	routine with expected function prototype.
+	(__pthread_create_2_1): Add C11 threads check based on attribute
+	value.
+	* sysdeps/nptl/threads.h: New file.
+	* sysdeps/aarch64/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	New define.
+	* sysdeps/alpha/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/arm/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/hppa/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/ia64/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/m68k/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/microblaze/nptl/bits/thread-shared-types.h
+	(_ONCE_FLAG_ALIGN): Likewise.
+	* sysdeps/mips/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/nios2/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/powerpc/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/s390/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/sh/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/sparc/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/tile/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/x86/nptl/bits/thread-shared-types.h (_ONCE_FLAG_ALIGN):
+	Likewise.
+	* sysdeps/nacl/libpthread.abilist: Add C11 thread symbols.
+	* sysdeps/unix/sysv/linux/aarch64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/alpha/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/arm/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/hppa/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/i386/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/ia64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/m68k/m680x0/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/m68k/coldfire/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/microblaze/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/mips/mips32/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/mips/mips64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/nios2/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc32/libpthread.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/libpthread-le.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/powerpc/powerpc64/libpthread.abilist:
+	Likewise.
+	* sysdpes/unix/sysv/linux/s390/s390-32/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/s390/s390-64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/sh/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc32/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/sparc/sparc64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/tile/tilegx/tilegx32/libpthread.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/tile/tilegx/tilegx64/libpthread.abilist:
+	Likewise.
+	* sysdeps/unix/sysv/linux/tile/tilepro/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/64/libpthread.abilist: Likewise.
+	* sysdeps/unix/sysv/linux/x86_64/x32/libpthread.abilist: Likewise.
+
 	* include/sched.h (__sched_get_priority_max): Add libc hidden proto.
 	(__sched_get_prioriry_min): Likewise.
 	* include/sys/mman.h (__mmap): Likewise.

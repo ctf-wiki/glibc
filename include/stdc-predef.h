@@ -54,7 +54,4 @@
    2015-05-15).  */
 #define __STDC_ISO_10646__		201505L
 
-/* We do not support C11 <threads.h>.  */
-#define __STDC_NO_THREADS__		1
-
 #endif

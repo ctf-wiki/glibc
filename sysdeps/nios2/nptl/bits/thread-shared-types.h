@@ -85,4 +85,7 @@ struct __pthread_mutex_s
   char __size[__SIZEOF_PTHREAD_COND_T];			\
   __extension__ long long int __align;
 
+/* Used to force once_flag alignment.  */
+#define __ONCE_FLAG_ALIGN
+
 #endif

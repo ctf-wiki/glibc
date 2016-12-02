@@ -94,4 +94,7 @@ struct __pthread_mutex_s
   __extension__ long long int __align;
 
 
+/* Used to force once_flag alignment.  */
+#define __ONCE_FLAG_ALIGN __attribute__ ((__aligned__ (4)))
+
 #endif
