@@ -1,5 +1,18 @@
 2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* nptl/Makefile (tests): Add new C11 thread test.
+	* nptl/tst-call-once.c : New file. Tests C11 functions and types.
+	* nptl/tst-cnd-basic.c: Likewise.
+	* nptl/tst-cnd-broadcast.c: Likewise.
+	* nptl/tst-cnd-timedwait.c: Likewise.
+	* nptl/tst-mtx-basic.c: Likewise.
+	* nptl/tst-mtx-recursive.c: Likewise.
+	* nptl/tst-mtx-timedlock.c: Likewise.
+	* nptl/tst-mtx-trylock.c: Likewise.
+	* nptl/tst-thrd-detach.c: Likewise.
+	* nptl/tst-thrd-sleep.c: Likewise.
+	* nptl/tst-tss-basic.c: Likewise.
+
 	* conform/Makefile (conformtest-headers-ISO11): Add threads.h.
 	(linknamespace-libs-ISO11): Add libpthread.a.
 	* include/stdc-predef.h (__STDC_NO_THREADS__): Remove definition.

@@ -303,7 +303,10 @@ tests = tst-typesizes \
 	tst-initializers1 $(addprefix tst-initializers1-,\
 			    c89 gnu89 c99 gnu99 c11 gnu11) \
 	tst-bad-schedattr \
-	tst-thread_local1 tst-mutex-errorcheck tst-robust10
+	tst-thread_local1 tst-mutex-errorcheck tst-robust10 \
+	tst-cnd-basic tst-mtx-trylock tst-cnd-broadcast \
+	tst-cnd-timedwait tst-thrd-detach tst-mtx-basic tst-thrd-sleep \
+	tst-mtx-recursive tst-tss-basic tst-call-once tst-mtx-timedlock
 xtests = tst-setuid1 tst-setuid1-static tst-setuid2 \
 	tst-mutexpp1 tst-mutexpp6 tst-mutexpp10
 test-srcs = tst-oddstacklimit
