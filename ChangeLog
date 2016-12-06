@@ -1,5 +1,10 @@
 2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/i386/nptl/tls.h (CALL_THREAD_FCT): Remove macro.
+	* sysdeps/x86_64/nptl/tls.h (CALL_THREAD_FCT): Likewise.
+	* sysdeps/x86_64/x32/nptl/tls.h: Remove file.
+	* nptl/pthread_create.c [CALL_THREAD_FCT]: Remove ifdef usage.
+
 	* sysdeps/unix/sysv/linux/alpha/bits/pthreadtypes.h: Move to ...
 	* sysdeps/alpha/nptl/bits/pthreadtypes.h: ... here.
 	* sysdeps/unix/sysv/linux/powerpc/bits/pthreadtypes.h: Move to ...
