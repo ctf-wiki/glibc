@@ -1,0 +1,373 @@
+@node ISO Threads, , , Top
+@chapter ISO C11 threads
+
+This chapter describes @theglibc{} ISO C11 threads implementation.
+To have a deeper understanding of this API, is strongly recomended
+to read ISO/IEC 9899:2011, section 7.26 where ISO C11 threads
+are specified.
+All types and function prototypes are declared in
+@file{threads.h} header.
+@pindex threads.h
+
+@menu
+* Thread Creation and Control:: Support for basic threading.
+* Call Once:: Single call macros and functions.
+* Mutex:: Low level mechanism for mutual exclusion.
+* Condition variable:: High level objects for thread synchronization.
+* Thread-local storage:: Functions to support thread-local storage.
+* C11 error types:: Symbolic constants that represent functions return value.
+@end menu
+
+@node Thread Creation and Control, Call Once, , ISO Threads
+@section Thread Creation and Control
+
+@Theglibc{} implements a set of functions that allow the user
+to easily create and use threads. Many extra functionalities are
+provided to control the behaviour of threads. The following functions
+and types are defined:
+
+@deftp {Data Type} {thrd_t}
+Unique object that identifies a thread
+unequivocally.
+@end deftp
+
+@deftp {Data Type} {thrd_start_t}
+It is a (@code{int (*)(void *)}) typedef that is passed to
+@code{thrd_create} when creating a new thread. Should point
+to the first function that thread will run.
+@end deftp
+
+@deftypefun int thrd_create (thrd_t *@var{thr}, thrd_start_t @var{func}, void *@var{arg})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Create a new thread executing the function @var{func}. The object
+pointed by @var{arg} will be taken as @var{func} arguments. If successful,
+@var{thr} is set to the new thread identifier.
+@end deftypefun
+
+@deftypefun int thrd_equal (thrd_t @var{lhs}, thrd_t @var{rhs})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Checks whether @var{lhs} and @var{rhs} refer to the same thread.
+@end deftypefun
+
+@deftypefun thrd_t thrd_current (void)
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Returns the identifier of the calling thread.
+@end deftypefun
+
+@deftypefun int thrd_sleep (const struct timespec *@var{time_point}, struct timespec *@var{remaining})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Blocks the execution of the current thread for at least until
+the wall-clock time point pointed to by @var{time_point} has been
+reached. This function does not take an absolute time, but a
+duration that the thread is required to be blocked.
+
+The sleep may resume earlier if a signal that is not ignored is
+received. In such case, if remaining is not NULL, the remaining
+time duration is stored into the object pointed to by @var{remaining}
+@end deftypefun
+
+@deftypefun void thrd_yield (void)
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Provides a hint to the implementation to reschedule the execution
+of threads, allowing other threads to run.
+@end deftypefun
+
+@deftypefun _Noreturn void thrd_exit (int @var{res})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Terminates execution of the calling thread and sets its result code
+to @var{res}.
+If this function is called from a single thread process, the call to
+this function is equivalent to @code{exit(0)}.
+Returning from a thread-start function is equivalent to calling
+@code{thrd_exit}.
+@end deftypefun
+
+@deftypefun int thrd_detach (thrd_t @var{thr})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Detaches the thread identified by @var{thr} from the current
+environment.
+The resources held by the thread will be freed automatically once
+the thread exits, thus, the parent thread will never be notified
+by any @var{thr} signal.
+@end deftypefun
+
+@deftypefun int thrd_join (thrd_t @var{thr}, int *@var{res})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Blocks the current thread until the thread identified by @var{thr}
+finishes execution. If @var{res} is not a null pointer, the result
+code of the thread is put to the location pointed to by @var{res}.
+The termination of the thread synchronizes-with the
+completion of this function.
+The behavior is undefined if the thread was previously detached
+or joined by another thread.
+@end deftypefun
+
+@node Call Once, Mutex, Thread Creation and Control, ISO Threads
+@section Call Once
+
+In order to guarantee single access to a function, @theglibc
+implements a call once function to allow unique access in case
+a function is required to be called only once in presence of several
+threads.
+
+@deftp {Data Type} {once_flag}
+Complete object type capable of holding a flag used by @code{call_once}
+@end deftp
+
+@deftypevr Macro {} ONCE_FLAG_INIT
+Value established to initialize an object of type @code{once_flag}.
+@end deftypevr
+
+@deftypefun void call_once (once_flag *@var{flag}, void (*@var{func})(void))
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Calls function @var{func} exactly once, even if invoked from
+several threads. The completion of the function @var{func}
+synchronizes with all previous or subsequent calls to
+@code{call_once} with the same @var{flag} variable.
+@end deftypefun
+
+@node Mutex, Condition variable, Call Once, ISO Threads
+@section Mutex
+
+To have a better control of resources and how threads access them,
+@theglibc{} also implements a mutex object, that allows to
+avoid race conditions and some other concurrency issues.
+
+@deftp {Data Type} {mtx_t}
+Mutex object identifier.
+@end deftp
+
+@deftypefun int mtx_init (mtx_t *@var{mutex}, int @var{type})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Creates a new mutex object with type @var{type}. The object pointed
+to by @var{mutex} is set to an identifier of the newly created mutex.
+@end deftypefun
+
+@deftypefun int mtx_lock (mtx_t *@var{mutex})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{}}@acunsafe{@aculock{}}}
+Blocks the current thread until the mutex pointed to by @var{mutex}
+is locked.
+The behavior is undefined if the current thread has already
+locked the mutex and the mutex is not recursive.
+Prior calls to @code{mtx_unlock} on the same mutex synchronize-with
+this operation, and all lock/unlock operations on any given mutex
+form a single total order (similar to the modification order of
+an atomic).
+@end deftypefun
+
+@deftypefun int mtx_timedlock (mtx_t *restrict @var{mutex}, const struct timespec *restrict @var{time_point})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{}}@acunsafe{@aculock{}}}
+Blocks the current thread until the mutex pointed to by @var{mutex}
+is locked or until the wall-clock time pointed to
+by @var{time_point} has been reached. This function takes
+an absolute time, so if a duration is required, must be calculated
+manually and passed to this function.
+
+The behavior is undefined if the current thread has already
+locked the mutex and the mutex is not recursive.
+The behavior is undefined if the mutex does not support timeout.
+Prior calls to @code{mtx_unlock} on the same mutex synchronize-with
+this operation (if this operation succeeds), and all lock/unlock
+operations on any given mutex form a single total order
+(similar to the modification order of an atomic).
+@end deftypefun
+
+@deftypefun int mtx_trylock (mtx_t *@var{mutex})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{}}@acunsafe{@aculock{}}}
+Tries to lock the mutex pointed to by @var{mutex} without blocking.
+Returns immediately if the mutex is already locked.
+Prior calls to @code{mtx_unlock} on the same mutex synchronize-with
+this operation (if this operation succeeds), and all lock/unlock
+operations on any given mutex form a single total order
+(similar to the modification order of an atomic).
+@end deftypefun
+
+@deftypefun int mtx_unlock (mtx_t *@var{mutex})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Unlocks the mutex pointed to by @var{mutex}. The behavior is undefined
+if the mutex is not locked by the calling thread. This function
+synchronizes-with subsequent @code{mtx_lock}, @code{mtx_trylock},
+or @code{mtx_timedlock} on the same mutex. All lock/unlock
+operations on
+any given mutex form a single total order (similar to the
+modification order of an atomic).
+@end deftypefun
+
+@deftypefun void mtx_destroy (mtx_t *@var{mutex})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Destroys the mutex pointed to by @var{mutex}.
+If there are threads waiting on mutex, the behavior is undefined.
+@end deftypefun
+
+The ISO C11 standard also defines several types of mutex that are
+also supported. They are represented with symbolic constants
+(enumeration type values) and are the following:
+
+@vtable @code
+
+@item mtx_plain
+Mutex type that does not support timeout or test and return.
+
+@item mtx_recursive
+Mutex type that supports recursive locking, what means that owner
+thread can lock it twice or more without causing deadlock.
+
+@item mtx_timed
+Mutex type that supports timeout.
+
+@end vtable
+
+@node Condition variable, Thread-local storage, Mutex, ISO Threads
+@section Condition Variable
+
+Mutexes are not the only synchronization mechanisms available. For some
+more complex tasks, @theglibc{} also implements condition variables,
+that allow the user to think in a higher level to solve complex
+synchronization problems. They are used to synchronize threads waiting on
+a certain condition to happen.
+
+@deftp {Data Type} {cnd_t}
+Condition variable object identifier.
+@end deftp
+
+@deftypefun int cnd_init (cnd_t *@var{cond})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Initializes new condition variable. The object pointed to by
+@var{cond} will be set to value that identifies the condition variable.
+@end deftypefun
+
+@deftypefun int cnd_signal (cnd_t *@var{cond})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Unblocks one thread that currently waits on condition variable
+pointed to by @var{cond}. If no threads are blocked, does nothing and
+returns @code{thrd_success}.
+@end deftypefun
+
+@deftypefun int cnd_broadcast (cnd_t *@var{cond})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Unblocks all threads that currently wait on condition variable
+pointed to by @var{cond}. If no threads are blocked, does nothing
+and returns @code{thrd_success}.
+@end deftypefun
+
+@deftypefun int cnd_wait (cnd_t *@var{cond}, mtx_t *@var{mutex})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{}}@acunsafe{@aculock{}}}
+Atomically unlocks the mutex pointed to by @var{mutex} and blocks on
+the condition variable pointed to by @var{cond} until the thread
+is signalled by @code{cnd_signal} or @code{cnd_broadcast}. The
+mutex is locked again before the function returns.
+@end deftypefun
+
+@deftypefun int cnd_timedwait (cnd_t *restrict @var{cond}, mtx_t *restrict @var{mutex}, const struct timespec *restrict @var{time_point})
+@safety{@prelim{}@mtsafe{}@asunsafe{@asulock{}}@acunsafe{@aculock{}}}
+Atomically unlocks the mutex pointed to by @var{mutex} and blocks on the
+condition variable pointed to by @var{cond} until the thread is signalled
+by @code{cnd_signal} or @code{cnd_broadcast}, or until the wall-clock time
+pointed to by @var{time_point} has been reached. The mutex
+is locked again before the function returns.
+Again, this function takes an absolute time rather than a duration.
+@end deftypefun
+
+@deftypefun void cnd_destroy (cnd_t *@var{cond})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Destroys the condition variable pointed to by @var{cond}.
+If there are threads waiting on @var{cond}, the behavior is undefined.
+@end deftypefun
+
+@node Thread-local storage, C11 error types, Condition variable, ISO Threads
+@section Thread-local Storage
+
+@Theglibc{} also implements different functions that adds
+funtionality for thread-local storage. That means that each thread can
+have their own variables and are not visible by other threads. The
+functions and types provided are:
+
+@deftp {Data Type} {tss_t}
+Thread-specific storage object. Even if shared, every thread will have
+its own instance of that variable with different values.
+@end deftp
+
+@deftp {Data Type} {tss_dtor_t}
+Function pointer of type @code{void(*)(void*)}, used for TSS destructor.
+This function will be called when the current thread calls @code{thrd_exit},
+but never when calling @code{tss_delete} or @code{exit}
+@end deftp
+
+@deftypevr Macro {} thread_local
+Used to mark a variable with thread storage duration, that means created
+when the thread starts, and cleaned up when the thread ends.
+@end deftypevr
+
+@deftypevr Macro {} TSS_DTOR_ITERATIONS
+Integer constant expression representing the maximum number of
+times that destructors will be called when a thread terminates.
+@end deftypevr
+
+@deftypefun int tss_create (tss_t *@var{tss_key}, tss_dtor_t @var{destructor})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Creates new thread-specific storage key and stores it in the object
+pointed to by @var{tss_key}. Although the same key value may be used
+by different threads, the values bound to the key by @code{tss_set}
+are maintained on a per-thread basis and persist for the life
+of the calling thread.
+
+If @var{destructor} is different to NULL, a destructor function will
+be set, and called when the thread finishes its execution by calling
+@code{thrd_exit}.
+@end deftypefun
+
+@deftypefun void *tss_get (tss_t @var{tss_key})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Returns the value held in thread-specific storage for the current
+thread identified by @var{tss_key}. Different threads
+may get different values identified by the same key.
+@end deftypefun
+
+@deftypefun int tss_set (tss_t @var{tss_id}, void *@var{val})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Sets the value of the thread-specific storage identified by
+@var{tss_id} for the current thread to @var{val}. Different threads
+may set different values to the same key.
+The destructor, if available, is not invoked.
+@end deftypefun
+
+@deftypefun void tss_delete (tss_t @var{tss_id})
+@safety{@prelim{}@mtsafe{}@assafe{}@acsafe{}}
+Destroys the thread-specific storage identified by @var{tss_id}.
+The destructor, if one was registered by @code{tss_create}, is not
+called.
+@end deftypefun
+
+@node C11 error types, , Thread-local storage, ISO Threads
+@section Error Types
+
+The ISO C11 specification also provides new error types that belong
+specifically to @code{threads.h}. @Theglibc{} has also implemented
+this feature and every function in this API always returns one of the
+following error codes:
+
+
+@vtable @code
+
+@item thrd_timedout
+Value returned by a function to indicate that a specified time was
+reached without acquiring the requested resource, usually a mutex
+or condition variable.
+
+@item thrd_sucess
+Value returned by a function to indicate that the requested operation
+succeded.
+
+@item thrd_busy
+Value returned by a function to indicate that the requested operation
+failed because a resource requested is already in use.
+
+@item thrd_error
+Value returned by a function to indicate that the requested operation
+failed.
+
+@item thrd_nomem
+Value returned by a function to indicate that the requested operation
+failed because it was unable to allocate enough memory.
+
+@end vtable

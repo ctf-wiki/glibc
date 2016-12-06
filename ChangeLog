@@ -1,5 +1,9 @@
 2017-01-24  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* manual/Makefile (chapters): Add isothreads.texi.
+	* manual/isothreads.texi: New file. Add new chapter for ISO C11
+	threads documentation.
+
 	* nptl/Makefile (tests): Add new C11 thread test.
 	* nptl/tst-call-once.c : New file. Tests C11 functions and types.
 	* nptl/tst-cnd-basic.c: Likewise.
