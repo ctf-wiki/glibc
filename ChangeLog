@@ -1,5 +1,23 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* nptl/libc-cancellation.c (__syscall_cancel): Define and use 7
+	argument syscall if architecture requires it.
+	* nptl/pthreadP.h (__syscall_cancel_arch): Likewise.
+	* sysdeps/unix/sysdep.h (__syscall_cancel, __SYSCALL_CANCEL*): Define
+	with 7 argument if architecture requires it.
+	(__SYSCALL_CANCEL7_ARG_DEF): New macro.
+	(__SYSCALL_CANCEL7_ARG): Likewise.
+	(__SYSCALL_CANCEL7_ARG7): Likewise.
+	* sysdeps/unix/sysv/linux/syscall_cancel.c (__syscall_cancel_arch):
+	Likewise.
+	* sysdeps/mips/nptl/tls.h (READ_THREAD_POINTER): Check __mips_isa_rev
+	existance for macro definition.
+	* sysdeps/unix/sysv/linux/mips/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+	* sysdeps/unix/sysv/linux/mips/mips32/syscall_cancel.S: New file.
+	* sysdeps/unix/sysv/linux/mips/mips32/sysdep.h
+	(HAVE_CANCELABLE_SYSCALL_WITH_7_ARGS): Define.
+
 	* sysdeps/sh/sysdep.h (L): New macro.
 	* sysdeps/unix/sysv/linux/sh/syscall_cancel.S: New file.
 	* sysdeps/unix/sysv/linux/sh/sigcontextinfo.h (ucontext_get_pc):
