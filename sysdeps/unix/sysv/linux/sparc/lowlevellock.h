@@ -117,7 +117,7 @@ __lll_timedlock (int *futex, const struct timespec *abstime, int private)
     {							\
       __typeof (tid) __tid;				\
       while ((__tid = (tid)) != 0)			\
-	lll_futex_wait (&(tid), __tid, LLL_SHARED);	\
+	lll_futex_wait_cancel (&(tid), __tid, LLL_SHARED); \
     }							\
   while (0)
 
