@@ -1,5 +1,10 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/sh/sysdep.h (L): New macro.
+	* sysdeps/unix/sysv/linux/sh/syscall_cancel.S: New file.
+	* sysdeps/unix/sysv/linux/sh/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+
 	* sysdeps/unix/sysv/linux/nios2/sigcontextinfo.h (ucontext_get_pc):
 	New function.
 
