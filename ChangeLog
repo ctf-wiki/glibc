@@ -1,5 +1,8 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/unix/sysv/linux/nios2/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+
 	* sysdeps/unix/sysv/linux/sparc/sparc32/sigcontextinfo.h
 	(ucontext_get_pc): New function.
 	* sysdeps/unix/sysv/linux/sparc/sparc64/sigcontextinfo.h

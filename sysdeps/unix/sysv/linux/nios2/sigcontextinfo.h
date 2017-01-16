@@ -16,6 +16,11 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef _SIGCONTEXTINFO_H
+#define _SIGCONTEXTINFO_H
+
+#include <stdint.h>
+
 #include <sys/ucontext.h>
 #include "kernel-features.h"
 
@@ -33,3 +38,14 @@
   (act)->sa_flags |= SA_SIGINFO; \
   (sigaction) (sig, act, oact); \
 })
+
+static inline uintptr_t
+ucontext_get_pc (const ucontext_t *uc)
+{
+  /* rt_restore_ucontext (arch/nios/kernel/signal.c) sets this position
+     to 'ea' register which is stated as exception return address (pc)
+     at arch/nios2/include/asm/ptrace.h.  */
+  return uc->uc_mcontext.regs[27];
+}
+
+#endif /* _SIGCONTEXTINFO_H  */
