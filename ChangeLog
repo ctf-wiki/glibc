@@ -1,8 +1,12 @@
 2017-12-07  Adhemerval Zanella  <adhemerval.zanella@linaro.org>
 
+	* sysdeps/unix/sysv/linux/alpha/sigcontextinfo.h (ucontext_get_pc):
+	New function.
+
 	* sysdeps/unix/sysv/linux/ia64/sigcontextinfo.h (ucontext_get_pc,
 	ucontext_get_mask): New functions.
 	* sysdeps/unix/sysv/linux/ia64/syscall_cancel.S: New file.
+
 	* sysdeps/unix/sysv/linux/s390/sigcontextinfo.h (ucontext_get_pc):
 	New function.
 
