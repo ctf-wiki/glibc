@@ -16,6 +16,11 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef _SIGCONTEXTINFO_H
+#define _SIGCONTEXTINFO_H
+
+#include <stdint.h>
+
 #define SIGCONTEXT int _code, ucontext_t *
 #define SIGCONTEXT_EXTRA_ARGS _code,
 #define GET_PC(ctx)    ((void *) (ctx)->uc_mcontext.regs.pc)
@@ -23,3 +28,11 @@
 #define GET_STACK(ctx) ((void *) (ctx)->uc_mcontext.regs.sp)
 #define CALL_SIGHANDLER(handler, signo, ctx) \
   (handler)((signo), SIGCONTEXT_EXTRA_ARGS (ctx))
+
+static inline uintptr_t
+ucontext_get_pc (const ucontext_t *uc)
+{
+  return uc->uc_mcontext.regs.pc;
+}
+
+#endif /* _SIGCONTEXTINFO_H  */
