@@ -24,46 +24,13 @@
 int
 __pthread_setcancelstate (int state, int *oldstate)
 {
-  volatile struct pthread *self;
-
   if (state < PTHREAD_CANCEL_ENABLE || state > PTHREAD_CANCEL_DISABLE)
     return EINVAL;
 
-  self = THREAD_SELF;
-
-  int oldval = THREAD_GETMEM (self, cancelhandling);
-  while (1)
-    {
-      int newval = (state == PTHREAD_CANCEL_DISABLE
-		    ? oldval | CANCELSTATE_BITMASK
-		    : oldval & ~CANCELSTATE_BITMASK);
-
-      /* Store the old value.  */
-      if (oldstate != NULL)
-	*oldstate = ((oldval & CANCELSTATE_BITMASK)
-		     ? PTHREAD_CANCEL_DISABLE : PTHREAD_CANCEL_ENABLE);
-
-      /* Avoid doing unnecessary work.  The atomic operation can
-	 potentially be expensive if the memory has to be locked and
-	 remote cache lines have to be invalidated.  */
-      if (oldval == newval)
-	break;
-
-      /* Update the cancel handling word.  This has to be done
-	 atomically since other bits could be modified as well.  */
-      int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling, newval,
-					      oldval);
-      if (__glibc_likely (curval == oldval))
-	{
-	  if (CANCEL_ENABLED_AND_CANCELED_AND_ASYNCHRONOUS (newval))
-	    __do_cancel ();
-
-	  break;
-	}
-
-      /* Prepare for the next round.  */
-      oldval = curval;
-    }
+  volatile struct pthread *self = THREAD_SELF;
+  if (oldstate)
+    *oldstate = self->cancelstate;
+  self->cancelstate = state;
 
   return 0;
 }

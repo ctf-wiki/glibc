@@ -84,12 +84,7 @@ until the subprogram terminates before you can do anything else.
 @c    libc_cleanup_region_end ok
 @c     pthread_cleanup_pop_restore ok
 @c  SINGLE_THREAD_P ok
-@c  LIBC_CANCEL_ASYNC @ascuplugin @ascuheap @acsmem
-@c   libc_enable_asynccancel @ascuplugin @ascuheap @acsmem
-@c    CANCEL_ENABLED_AND_CANCELED_AND_ASYNCHRONOUS dup ok
 @c    do_cancel dup @ascuplugin @ascuheap @acsmem
-@c  LIBC_CANCEL_RESET ok
-@c   libc_disable_asynccancel ok
 @c    lll_futex_wait dup ok
 This function executes @var{command} as a shell command.  In @theglibc{},
 it always uses the default shell @code{sh} to run the command.

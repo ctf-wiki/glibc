@@ -29,27 +29,9 @@ _pthread_cleanup_push_defer (struct _pthread_cleanup_buffer *buffer,
   buffer->__arg = arg;
   buffer->__prev = THREAD_GETMEM (self, cleanup);
 
-  int cancelhandling = THREAD_GETMEM (self, cancelhandling);
-
-  /* Disable asynchronous cancellation for now.  */
-  if (__glibc_unlikely (cancelhandling & CANCELTYPE_BITMASK))
-    while (1)
-      {
-	int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling,
-						cancelhandling
-						& ~CANCELTYPE_BITMASK,
-						cancelhandling);
-	if (__glibc_likely (curval == cancelhandling))
-	  /* Successfully replaced the value.  */
-	  break;
-
-	/* Prepare for the next round.  */
-	cancelhandling = curval;
-      }
-
-  buffer->__canceltype = (cancelhandling & CANCELTYPE_BITMASK
-			  ? PTHREAD_CANCEL_ASYNCHRONOUS
-			  : PTHREAD_CANCEL_DEFERRED);
+  volatile struct pthread *pd = (volatile struct pthread *) self;
+  pd->canceltype = PTHREAD_CANCEL_DEFERRED;
+  buffer->__canceltype = pd->canceltype;
 
   THREAD_SETMEM (self, cleanup, buffer);
 }
@@ -64,26 +46,12 @@ _pthread_cleanup_pop_restore (struct _pthread_cleanup_buffer *buffer,
 
   THREAD_SETMEM (self, cleanup, buffer->__prev);
 
-  int cancelhandling;
-  if (__builtin_expect (buffer->__canceltype != PTHREAD_CANCEL_DEFERRED, 0)
-      && ((cancelhandling = THREAD_GETMEM (self, cancelhandling))
-	  & CANCELTYPE_BITMASK) == 0)
+  volatile struct pthread *pd = (volatile struct pthread *) self;
+  if (buffer->__canceltype != PTHREAD_CANCEL_DEFERRED
+      && pd->canceltype == PTHREAD_CANCEL_DEFERRED)
     {
-      while (1)
-	{
-	  int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling,
-						  cancelhandling
-						  | CANCELTYPE_BITMASK,
-						  cancelhandling);
-	  if (__glibc_likely (curval == cancelhandling))
-	    /* Successfully replaced the value.  */
-	    break;
-
-	  /* Prepare for the next round.  */
-	  cancelhandling = curval;
-	}
-
-      CANCELLATION_P (self);
+      pd->canceltype = PTHREAD_CANCEL_ASYNCHRONOUS;
+      __pthread_testcancel ();
     }
 
   /* If necessary call the cleanup routine after we removed the

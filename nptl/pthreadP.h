@@ -244,18 +244,6 @@ extern int __pthread_debug attribute_hidden;
 #endif
 
 
-/* Cancellation test.  */
-#define CANCELLATION_P(self) \
-  do {									      \
-    int cancelhandling = THREAD_GETMEM (self, cancelhandling);		      \
-    if (CANCEL_ENABLED_AND_CANCELED (cancelhandling))			      \
-      {									      \
-	THREAD_SETMEM (self, result, PTHREAD_CANCELED);			      \
-	__do_cancel ();							      \
-      }									      \
-  } while (0)
-
-
 extern void __pthread_unwind (__pthread_unwind_buf_t *__buf)
      __cleanup_fct_attribute __attribute ((__noreturn__))
 #if !defined SHARED && !IS_IN (libpthread)
@@ -291,22 +279,8 @@ __do_cancel (void)
 {
   struct pthread *self = THREAD_SELF;
 
-  /* Make sure we get no more cancellations by clearing the cancel
-     state.  */
-  int oldval = THREAD_GETMEM (self, cancelhandling);
-  while (1)
-    {
-      int newval = (oldval | CANCELSTATE_BITMASK);
-      newval &= ~(CANCELTYPE_BITMASK);
-      if (oldval == newval)
-	break;
-
-      int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling, newval,
-					  oldval);
-      if (__glibc_likely (curval == oldval))
-	break;
-      oldval = curval;
-    }
+  /* Make sure we get no more cancellations.  */
+  self->cancelstate = PTHREAD_CANCEL_DISABLE;
 
   THREAD_SETMEM (self, result, PTHREAD_CANCELED);
 

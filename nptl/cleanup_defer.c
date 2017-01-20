@@ -31,27 +31,9 @@ __pthread_register_cancel_defer (__pthread_unwind_buf_t *buf)
   ibuf->priv.data.prev = THREAD_GETMEM (self, cleanup_jmp_buf);
   ibuf->priv.data.cleanup = THREAD_GETMEM (self, cleanup);
 
-  int cancelhandling = THREAD_GETMEM (self, cancelhandling);
-
-  /* Disable asynchronous cancellation for now.  */
-  if (__glibc_unlikely (cancelhandling & CANCELTYPE_BITMASK))
-    while (1)
-      {
-	int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling,
-						cancelhandling
-						& ~CANCELTYPE_BITMASK,
-						cancelhandling);
-	if (__glibc_likely (curval == cancelhandling))
-	  /* Successfully replaced the value.  */
-	  break;
-
-	/* Prepare for the next round.  */
-	cancelhandling = curval;
-      }
-
-  ibuf->priv.data.canceltype = (cancelhandling & CANCELTYPE_BITMASK
-				? PTHREAD_CANCEL_ASYNCHRONOUS
-				: PTHREAD_CANCEL_DEFERRED);
+  volatile struct pthread *pd = (volatile struct pthread *) self;
+  pd->canceltype = PTHREAD_CANCEL_DEFERRED;
+  ibuf->priv.data.canceltype = pd->canceltype;
 
   /* Store the new cleanup handler info.  */
   THREAD_SETMEM (self, cleanup_jmp_buf, (struct pthread_unwind_buf *) buf);
@@ -67,25 +49,11 @@ __pthread_unregister_cancel_restore (__pthread_unwind_buf_t *buf)
 
   THREAD_SETMEM (self, cleanup_jmp_buf, ibuf->priv.data.prev);
 
-  int cancelhandling;
+  volatile struct pthread *pd = (volatile struct pthread *) self;
   if (ibuf->priv.data.canceltype != PTHREAD_CANCEL_DEFERRED
-      && ((cancelhandling = THREAD_GETMEM (self, cancelhandling))
-	  & CANCELTYPE_BITMASK) == 0)
+      && pd->canceltype == PTHREAD_CANCEL_DEFERRED)
     {
-      while (1)
-	{
-	  int curval = THREAD_ATOMIC_CMPXCHG_VAL (self, cancelhandling,
-						  cancelhandling
-						  | CANCELTYPE_BITMASK,
-						  cancelhandling);
-	  if (__glibc_likely (curval == cancelhandling))
-	    /* Successfully replaced the value.  */
-	    break;
-
-	  /* Prepare for the next round.  */
-	  cancelhandling = curval;
-	}
-
-      CANCELLATION_P (self);
+      pd->canceltype = PTHREAD_CANCEL_ASYNCHRONOUS;
+      __pthread_testcancel ();
     }
 }

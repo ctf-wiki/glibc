@@ -50,7 +50,7 @@ __pthread_cancel (pthread_t th)
 
   /* Avoid signaling when thread attempts cancel itself (pthread_kill
      is expensive).  */
-  if (pd == THREAD_SELF && !(pd->cancelhandling & CANCELTYPE_BITMASK))
+  if (pd == THREAD_SELF && pd->canceltype == PTHREAD_CANCEL_DEFERRED)
     return 0;
 
   return __pthread_kill (th, SIGCANCEL);
