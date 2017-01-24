@@ -35,18 +35,6 @@
 #include <nptl-signals.h>
 
 
-/* Atomic operations on TLS memory.  */
-#ifndef THREAD_ATOMIC_CMPXCHG_VAL
-# define THREAD_ATOMIC_CMPXCHG_VAL(descr, member, new, old) \
-  atomic_compare_and_exchange_val_acq (&(descr)->member, new, old)
-#endif
-
-#ifndef THREAD_ATOMIC_BIT_SET
-# define THREAD_ATOMIC_BIT_SET(descr, member, bit) \
-  atomic_bit_set (&(descr)->member, bit)
-#endif
-
-
 /* Adaptive mutex definitions.  */
 #ifndef MAX_ADAPTIVE_COUNT
 # define MAX_ADAPTIVE_COUNT 100

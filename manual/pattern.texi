@@ -1820,7 +1820,6 @@ the beginning of the vector.
 @c      (disable cancellation around exec_comm; it may do_cancel the
 @c       second time, if async cancel is enabled)
 @c     do_cancel @ascuplugin @ascuheap @acsmem
-@c      THREAD_ATOMIC_BIT_SET dup ok
 @c      pthread_unwind @ascuplugin @ascuheap @acsmem
 @c       Unwind_ForcedUnwind if available @ascuplugin @ascuheap @acsmem
 @c       libc_unwind_longjmp otherwise
