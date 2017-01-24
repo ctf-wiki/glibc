@@ -89,10 +89,10 @@ td_thr_get_info (const td_thrhandle_t *th, td_thrinfo_t *infop)
 		   ? 0 : (uintptr_t) schedprio);
   infop->ti_type = TD_THR_USER;
 
-  if ((((int) (uintptr_t) cancelhandling) & EXITING_BITMASK) == 0)
+  if ((((int) (uintptr_t) cancelhandling) & THREAD_EXITING) == 0)
     /* XXX For now there is no way to get more information.  */
     infop->ti_state = TD_THR_ACTIVE;
-  else if ((((int) (uintptr_t) cancelhandling) & TERMINATED_BITMASK) == 0)
+  else if ((((int) (uintptr_t) cancelhandling) & THREAD_TERMINATED) == 0)
     infop->ti_state = TD_THR_ZOMBIE;
   else
     infop->ti_state = TD_THR_UNKNOWN;

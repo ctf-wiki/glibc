@@ -40,7 +40,7 @@ td_thr_setfpregs (const td_thrhandle_t *th, const prfpregset_t *fpregs)
     return err;
 
   /* Only set the registers if the thread hasn't yet terminated.  */
-  if ((((int) (uintptr_t) cancelhandling) & TERMINATED_BITMASK) == 0)
+  if ((((int) (uintptr_t) cancelhandling) & THREAD_TERMINATED) == 0)
     {
       err = DB_GET_FIELD (tid, th->th_ta_p, th->th_unique, pthread, tid, 0);
       if (err != TD_OK)

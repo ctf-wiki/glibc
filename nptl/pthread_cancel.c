@@ -38,7 +38,7 @@ __pthread_cancel (pthread_t th)
   pthread_cancel_init ();
 #endif
 
-  THREAD_ATOMIC_BIT_SET (pd, cancelhandling, CANCELED_BIT);
+  atomic_fetch_or_acquire (&pd->cancelhandling, THREAD_CANCELED);
 
   /* A single-threaded process should be able to kill itself, since there is
      nothing in the POSIX specification that says that it cannot.  So we set

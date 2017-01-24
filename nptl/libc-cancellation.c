@@ -48,7 +48,7 @@ __syscall_cancel (__syscall_arg_t nr, __syscall_arg_t a1,
 			          a6 __SYSCALL_CANCEL7_ARG7);
 
   if ((result == -EINTR)
-      && (pd->cancelhandling & CANCELED_BITMASK)
+      && (atomic_load_relaxed (&pd->cancelhandling) & THREAD_CANCELED)
       && (pd->cancelstate != PTHREAD_CANCEL_DISABLE))
     __syscall_do_cancel ();
 

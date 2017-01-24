@@ -40,7 +40,7 @@ td_thr_getfpregs (const td_thrhandle_t *th, prfpregset_t *regset)
     return err;
 
   /* If the thread already terminated we return all zeroes.  */
-  if (((int) (uintptr_t) cancelhandling) & TERMINATED_BITMASK)
+  if (((int) (uintptr_t) cancelhandling) & THREAD_TERMINATED)
     memset (regset, '\0', sizeof (*regset));
   /* Otherwise get the register content through the callback.  */
   else

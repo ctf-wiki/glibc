@@ -50,7 +50,7 @@ __syscall_cancel_arch (volatile int *ch, __syscall_arg_t nr,
 		       __SYSCALL_CANCEL7_ARG_DEF)
 {
   ADD_LABEL ("__syscall_cancel_arch_start");
-  if (__glibc_unlikely (*ch & CANCELED_BITMASK))
+  if (__glibc_unlikely (atomic_load_relaxed (ch) & THREAD_CANCELED))
     __syscall_do_cancel();
 
   INTERNAL_SYSCALL_DECL(err);

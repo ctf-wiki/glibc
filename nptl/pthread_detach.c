@@ -46,7 +46,7 @@ __pthread_detach (pthread_t th)
   else
     /* Check whether the thread terminated meanwhile.  In this case we
        will just free the TCB.  */
-    if ((pd->cancelhandling & EXITING_BITMASK) != 0)
+    if ((atomic_load_relaxed(&pd->cancelhandling) & THREAD_EXITING) != 0)
       /* Note that the code in __free_tcb makes sure each thread
 	 control block is freed only once.  */
       __free_tcb (pd);

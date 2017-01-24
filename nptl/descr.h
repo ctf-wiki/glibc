@@ -270,17 +270,26 @@ struct pthread
   struct pthread_unwind_buf *cleanup_jmp_buf;
 #define HAVE_CLEANUP_JMP_BUF
 
-  /* Flags determining processing of cancellation.  */
-  int cancelhandling;
+  /* Flags determining process of thread cancellation, termination, and
+     finalization.  Initial state is 0 set at allocate_stack
+     (pthread_create.c).
 
-#define CANCELED_BIT		2
-#define CANCELED_BITMASK	(0x01 << CANCELED_BIT)
-  /* Bit set if thread is exiting.  */
-#define EXITING_BIT		3
-#define EXITING_BITMASK		(0x01 << EXITING_BIT)
-  /* Bit set if thread terminated and TCB is freed.  */
-#define TERMINATED_BIT		4
-#define TERMINATED_BITMASK	(0x01 << TERMINATED_BIT)
+     THREAD_CANCELED bit is used to mark the thread as cancelled and it
+     is set atomically by pthread_cancel.
+
+     THREAD_EXITING bit is used to mark the thread as exiting and it
+     is set atomically either by 1. pthread_exit, 2. thread cancellation
+     signal handler at nptl-init.c, or 3. after thread execution at
+     pthread_create.c.
+
+     THREAD_TERMINATED bit used to mark the thread resources are being
+     freed and set by __free_tcb (called by pthread_detach and
+     pthread_{timed,try}join.
+   */
+#define THREAD_CANCELED		0x04
+#define THREAD_EXITING		0x08
+#define THREAD_TERMINATED	0x10
+  int cancelhandling;
 
   /* Flag to indicate thread cancel disable state (PTHREAD_CANCEL_ENABLE or
      PTHREAD_CANCEL_DISABLE).  */

@@ -33,7 +33,7 @@ ENTRY (__syscall_cancel_arch)
 	.type  __syscall_cancel_arch_start,@function
 __syscall_cancel_arch_start:
 
-	/* if (*cancelhandling & CANCELED_BITMASK)
+	/* if (*cancelhandling & THREAD_CANCELED)
 	     __syscall_do_cancel()  */
 	lwz     r0,0(r3)
 	rldicl. r0,r0,62,63

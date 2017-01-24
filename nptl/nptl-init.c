@@ -209,7 +209,7 @@ sigcancel_handler (int sig, siginfo_t *si, void *ctx)
   volatile struct pthread *pd = (volatile struct pthread *) self;
 
   if ((pd->cancelstate == PTHREAD_CANCEL_DISABLE)
-      || ((pd->cancelhandling & CANCELED_BITMASK) == 0))
+      || (atomic_load_relaxed (&pd->cancelhandling) & THREAD_CANCELED) == 0)
     return;
 
   /* Add SIGCANCEL on ignored sigmask to avoid the handler to be called
@@ -228,7 +228,7 @@ sigcancel_handler (int sig, siginfo_t *si, void *ctx)
       || (pc >= (uintptr_t) __syscall_cancel_arch_start
           && pc < (uintptr_t) __syscall_cancel_arch_end))
     {
-      THREAD_ATOMIC_BIT_SET (self, cancelhandling, EXITING_BIT);
+      atomic_fetch_or_acquire (&self->cancelhandling, THREAD_EXITING);
       THREAD_SETMEM (self, result, PTHREAD_CANCELED);
 
       INTERNAL_SYSCALL_CALL (rt_sigprocmask, err, SIG_SETMASK, set, NULL,

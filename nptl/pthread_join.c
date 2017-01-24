@@ -64,13 +64,10 @@ __pthread_join (pthread_t threadid, void **thread_return)
   /* Switch to asynchronous cancellation.  */
   __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &ct);
 
-  if ((pd == self
-       || (self->joinid == pd
-	   && (pd->cancelhandling
-	       & (CANCELED_BITMASK | EXITING_BITMASK
-		  | TERMINATED_BITMASK)) == 0))
+  unsigned int ch = atomic_load_relaxed (&pd->cancelhandling);
+  if ((pd == self || (self->joinid == pd && ch == 0))
       && !(self->cancelstate == PTHREAD_CANCEL_ENABLE
-           && self->cancelhandling & CANCELED_BITMASK))
+           && ch & THREAD_CANCELED))
     /* This is a deadlock situation.  The threads are waiting for each
        other to finish.  Note that this is a "may" error.  To be 100%
        sure we catch this error we would have to lock the data

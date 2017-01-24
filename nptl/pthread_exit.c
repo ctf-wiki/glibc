@@ -27,7 +27,7 @@ __pthread_exit (void *value)
 
   THREAD_SETMEM (self, result, value);
 
-  THREAD_ATOMIC_BIT_SET (self, cancelhandling, EXITING_BIT);
+  atomic_fetch_or_acquire (&self->cancelhandling, THREAD_EXITING);
 
   __pthread_unwind ((__pthread_unwind_buf_t *)
 		    THREAD_GETMEM (self, cleanup_jmp_buf));

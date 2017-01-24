@@ -343,8 +343,9 @@ void
 __free_tcb (struct pthread *pd)
 {
   /* The thread is exiting now.  */
-  if (__builtin_expect (atomic_bit_test_set (&pd->cancelhandling,
-					     TERMINATED_BIT) == 0, 1))
+  unsigned int ch = atomic_fetch_or_acquire (&pd->cancelhandling,
+					     THREAD_TERMINATED);
+  if (__glibc_likely ((ch & THREAD_TERMINATED) == 0))
     {
       /* Remove the descriptor from the list.  */
       if (DEBUGGING_P && __find_in_stack_list (pd) == NULL)
@@ -412,13 +413,14 @@ START_THREAD_DEFN
   /* If the parent was running cancellation handlers while creating
      the thread the new thread inherited the signal mask.  Reset the
      cancellation signal mask.  */
-  if (__glibc_unlikely (pd->parent_cancelhandling & CANCELED_BITMASK))
+  unsigned int ch = atomic_load_relaxed (&pd->parent_cancelhandling);
+  if (__glibc_unlikely (ch & THREAD_CANCELED))
     {
       INTERNAL_SYSCALL_DECL (err);
       sigset_t mask;
       __sigemptyset (&mask);
       __sigaddset (&mask, SIGCANCEL);
-      (void) INTERNAL_SYSCALL (rt_sigprocmask, err, 4, SIG_UNBLOCK, &mask,
+      INTERNAL_SYSCALL_CALL (rt_sigprocmask, err, SIG_UNBLOCK, &mask,
 			       NULL, _NSIG / 8);
     }
 #endif
@@ -515,7 +517,7 @@ START_THREAD_DEFN
   /* The thread is exiting now.  Don't set this bit until after we've hit
      the event-reporting breakpoint, so that td_thr_get_info on us while at
      the breakpoint reports TD_THR_RUN state rather than TD_THR_ZOMBIE.  */
-  atomic_bit_set (&pd->cancelhandling, EXITING_BIT);
+  atomic_fetch_or_acquire (&pd->cancelhandling, THREAD_EXITING);
 
 #ifndef __ASSUME_SET_ROBUST_LIST
   /* If this thread has any robust mutexes locked, handle them now.  */
@@ -554,10 +556,11 @@ START_THREAD_DEFN
 		      pd->guardsize);
 
   /* If the thread is detached free the TCB.  */
+  unsigned int s;
   if (IS_DETACHED (pd))
     /* Free the TCB.  */
     __free_tcb (pd);
-  else
+  else if ((s = atomic_load_relaxed (&pd->setxid_op)) == 1)
     {
       /* Some other thread might call any of the setXid functions and expect
 	 us to reply.  In this case wait until we did that.  */
@@ -713,7 +716,7 @@ __pthread_create_2_1 (pthread_t *newthread, const pthread_attr_t *attr,
 
   /* Inform start_thread (above) about cancellation state that might
      translate into inherited signal state.  */
-  pd->parent_cancelhandling = THREAD_GETMEM (THREAD_SELF, cancelhandling);
+  pd->parent_cancelhandling = atomic_load_relaxed (&self->cancelhandling);
 
   /* Determine scheduling parameters for the thread.  */
   if (__builtin_expect ((iattr->flags & ATTR_FLAG_NOTINHERITSCHED) != 0, 0)
