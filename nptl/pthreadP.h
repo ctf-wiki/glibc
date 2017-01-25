@@ -453,6 +453,8 @@ extern void __pthread_exit (void *value) __attribute__ ((__noreturn__));
 extern int __pthread_join (pthread_t threadid, void **thread_return);
 extern int __pthread_setcanceltype (int type, int *oldtype);
 extern void __pthread_testcancel (void);
+extern int __pthread_timedjoin_np (pthread_t threadid, void **thread_return,
+				   const struct timespec *abstime);
 
 #if IS_IN (libpthread)
 hidden_proto (__pthread_mutex_init)
@@ -471,6 +473,7 @@ hidden_proto (__pthread_setcancelstate)
 hidden_proto (__pthread_testcancel)
 hidden_proto (__pthread_mutexattr_init)
 hidden_proto (__pthread_mutexattr_settype)
+hidden_proto (__pthread_timedjoin_np)
 #endif
 
 extern int __pthread_cond_broadcast_2_0 (pthread_cond_2_0_t *cond);

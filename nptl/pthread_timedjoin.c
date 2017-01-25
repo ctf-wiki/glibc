@@ -21,21 +21,26 @@
 #include <atomic.h>
 #include "pthreadP.h"
 
+#include <stap-probe.h>
+
 
 static void
 cleanup (void *arg)
 {
-  *(void **) arg = NULL;
+  /* If we already changed the waiter ID, reset it.  The call cannot
+     fail for any reason but the thread not having done that yet so
+     there is no reason for a loop.  */
+  struct pthread *self = THREAD_SELF;
+  atomic_compare_exchange_weak_acquire (&arg, &self, NULL);
 }
 
 
 int
-pthread_timedjoin_np (pthread_t threadid, void **thread_return,
-		      const struct timespec *abstime)
+__pthread_timedjoin_np (pthread_t threadid, void **thread_return,
+			const struct timespec *abstime)
 {
-  struct pthread *self;
   struct pthread *pd = (struct pthread *) threadid;
-  int result, ct;
+  int result = 0, ct;
 
   /* Make sure the descriptor is valid.  */
   if (INVALID_NOT_TERMINATED_TD_P (pd))
@@ -47,8 +52,13 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
     /* We cannot wait for the thread.  */
     return EINVAL;
 
-  self = THREAD_SELF;
-  if (pd == self || self->joinid == pd)
+  LIBC_PROBE (pthread_join, 1, threadid);
+
+  struct pthread *self = THREAD_SELF;
+  unsigned int ch = atomic_load_relaxed (&pd->cancelhandling);
+  if ((pd == self || (self->joinid == pd && ch == 0))
+      && !(self->cancelstate == PTHREAD_CANCEL_ENABLE
+           && ch & THREAD_CANCELED))
     /* This is a deadlock situation.  The threads are waiting for each
        other to finish.  Note that this is a "may" error.  To be 100%
        sure we catch this error we would have to lock the data
@@ -60,9 +70,8 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
 
   /* Wait for the thread to finish.  If it is already locked something
      is wrong.  There can only be one waiter.  */
-  if (__builtin_expect (atomic_compare_and_exchange_bool_acq (&pd->joinid,
-							      self, NULL), 0))
-    /* There is already somebody waiting for the thread.  */
+  if (__glibc_unlikely (atomic_compare_exchange_weak_acquire (&pd->joinid,
+							      &self, NULL)))
     return EINVAL;
 
 
@@ -75,7 +84,10 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
   __pthread_setcanceltype (PTHREAD_CANCEL_ASYNCHRONOUS, &ct);
 
   /* Wait for the child.  */
-  result = lll_timedwait_tid (pd->tid, abstime);
+  if (abstime != NULL)
+    result = lll_timedwait_tid (pd->tid, abstime);
+  else
+    lll_wait_tid (pd->tid);
 
   __pthread_setcanceltype (ct, NULL);
 
@@ -84,12 +96,14 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
 
 
   /* We might have timed out.  */
-  if (result == 0)
+  if (__glibc_likely (result == 0))
     {
+      /* We mark the thread as terminated and as joined.  */
+      pd->tid = -1;
+
       /* Store the return value if the caller is interested.  */
       if (thread_return != NULL)
 	*thread_return = pd->result;
-
 
       /* Free the TCB.  */
       __free_tcb (pd);
@@ -97,5 +111,9 @@ pthread_timedjoin_np (pthread_t threadid, void **thread_return,
   else
     pd->joinid = NULL;
 
+  LIBC_PROBE (pthread_join_ret, 3, threadid, result, pd->result);
+
   return result;
 }
+weak_alias (__pthread_timedjoin_np, pthread_timedjoin_np)
+hidden_def (__pthread_timedjoin_np)
