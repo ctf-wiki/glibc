@@ -1,5 +1,5 @@
-/* memcopy.h -- definitions for memory copy functions.  Tile version.
-   Copyright (C) 2012-2018 Free Software Foundation, Inc.
+/* Define a type to use for word access.  Generic version.
+   Copyright (C) 2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +16,16 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdeps/generic/memcopy.h>
-#include <bits/wordsize.h>
+#ifndef STRING_OPTYPE_H
+#define STRING_OPTYPE_H 1
 
-/* The tilegx implementation of memcpy is safe to use for memmove.  */
-#undef MEMCPY_OK_FOR_FWD_MEMMOVE
-#define MEMCPY_OK_FOR_FWD_MEMMOVE 1
+/* Use the existing parameterization from gmp as a default.  */
+#include <gmp-mparam.h>
+
+#ifdef _LONG_LONG_LIMB
+typedef unsigned long long int __attribute__ ((__may_alias__)) op_t;
+#else
+typedef unsigned long int __attribute__ ((__may_alias__)) op_t;
+#endif
+
+#endif /* string-optype.h */

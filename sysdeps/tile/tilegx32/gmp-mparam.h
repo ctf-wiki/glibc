@@ -1,5 +1,6 @@
-/* memcopy.h -- definitions for memory copy functions.  Tile version.
-   Copyright (C) 2012-2018 Free Software Foundation, Inc.
+/* Compiler/machine parameter header file.  TileGX32 version.
+
+   Copyright (C) 2018 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -16,9 +17,14 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
-#include <sysdeps/generic/memcopy.h>
-#include <bits/wordsize.h>
+#if defined __GMP_H__ && ! defined _LONG_LONG_LIMB
+# error "Included too late for _LONG_LONG_LIMB to take effect"
+#endif
 
-/* The tilegx implementation of memcpy is safe to use for memmove.  */
-#undef MEMCPY_OK_FOR_FWD_MEMMOVE
-#define MEMCPY_OK_FOR_FWD_MEMMOVE 1
+#define _LONG_LONG_LIMB
+#define BITS_PER_MP_LIMB 64
+#define BYTES_PER_MP_LIMB 8
+#define BITS_PER_LONGINT 32
+#define BITS_PER_INT 32
+#define BITS_PER_SHORTINT 16
+#define BITS_PER_CHAR 8
