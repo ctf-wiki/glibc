@@ -410,6 +410,12 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 			      __mempcpy_sse2_unaligned_erms)
 	      IFUNC_IMPL_ADD (array, i, mempcpy, 1, __mempcpy_erms))
 
+  /* Support sysdeps/x86_64/multiarch/strlen.S.  */
+  IFUNC_IMPL (i, name, strlen,
+	      IFUNC_IMPL_ADD (array, i, strlen, HAS_CPU_FEATURE (SSE4_2),
+			      __strlen_sse42)
+	      IFUNC_IMPL_ADD (array, i, strlen, 1, strlen))
+
   /* Support sysdeps/x86_64/multiarch/strncmp.S.  */
   IFUNC_IMPL (i, name, strncmp,
 	      IFUNC_IMPL_ADD (array, i, strncmp, HAS_CPU_FEATURE (SSE4_2),
