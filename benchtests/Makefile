@@ -99,6 +99,12 @@ binaries-bench := $(addprefix $(objpfx)bench-,$(bench))
 binaries-benchset := $(addprefix $(objpfx)bench-,$(benchset))
 binaries-bench-malloc := $(addprefix $(objpfx)bench-,$(bench-malloc))
 
+ifneq (,$(CXX))
+binaries-bench += $(objpfx)memcpy_benchmark
+CFLAGS-memcpy_benchmark.cc = -fpermissive -Wno-error -std=c++11
+LDLIBS-memcpy_benchmark = -lstdc++
+endif
+
 # The default duration: 10 seconds.
 ifndef BENCH_DURATION
 BENCH_DURATION := 10
@@ -122,6 +128,9 @@ endif
 # for all these modules.
 cpp-srcs-left := $(binaries-benchset:=.c) $(binaries-bench:=.c) \
 		 $(binaries-bench-malloc:=.c)
+ifneq (,$(CXX))
+cpp-srcs-left += memcpy_benchmark.cc
+endif
 lib := nonlib
 include $(patsubst %,$(..)libof-iterator.mk,$(cpp-srcs-left))
 
