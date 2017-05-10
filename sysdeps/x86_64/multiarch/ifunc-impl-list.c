@@ -353,6 +353,8 @@ __libc_ifunc_impl_list (const char *name, struct libc_ifunc_impl *array,
 	      IFUNC_IMPL_ADD (array, i, memcpy, 1, __memcpy_sse2_unaligned)
 	      IFUNC_IMPL_ADD (array, i, memcpy, 1,
 			      __memcpy_sse2_unaligned_erms)
+	      IFUNC_IMPL_ADD (array, i, memcpy, 1,
+			      __memcpy_sse2_unaligned_2_19)
 	      IFUNC_IMPL_ADD (array, i, memcpy, 1, __memcpy_erms))
 
   /* Support sysdeps/x86_64/multiarch/mempcpy_chk.S.  */
