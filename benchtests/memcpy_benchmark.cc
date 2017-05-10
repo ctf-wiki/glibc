@@ -24,9 +24,20 @@
 #include <map>
 #include <string>
 
+#define TEST_MAIN
+#define TEST_NAME "memcpy"
+#define TIMEOUT (60 * 60)
+#include "bench-string.h"
+
+typedef char *(*proto_t) (char *, const char *, size_t);
+IMPL (memcpy, 1)
+
 std::chrono::time_point<std::chrono::high_resolution_clock> start;
 std::chrono::time_point<std::chrono::high_resolution_clock> stop;
 size_t bytes;
+
+#define MAX_ALIGN 128
+int src_align, dest_align;
 
 void start_timing() { start = std::chrono::high_resolution_clock::now(); }
 void stop_timing() { stop = std::chrono::high_resolution_clock::now(); }
@@ -35,31 +46,37 @@ int size_list[] = {1 << 14, 1 << 15, 1 << 16, 1 << 17, 1 << 18, 1 << 19,
                    1 << 20, 1 << 21, 1 << 22, 1 << 23, 1 << 24, 1 << 25, 1 << 26};
 size_t buffer_size = 1 << 28;
 
-void BM_memcpy_readwritecache(int iters, int size) {
+void BM_memcpy_readwritecache(impl_t *impl, int iters, int size) {
   unsigned char * buf1 = new unsigned char [size];
   unsigned char * buf2 = new unsigned char [size];
+
+  src_align  = ((uintptr_t) buf1) & (MAX_ALIGN - 1);
+  dest_align  = ((uintptr_t) buf2) & (MAX_ALIGN - 1);
 
   memset (buf1, 0xa5, size); memset (buf2, 0x5a, size);
 
   start_timing();
   for (int i = 0; i < iters; ++i) {
-    memcpy(buf2, buf1, size);
+    CALL(impl, buf2, buf1, size);
   }
   stop_timing();
 
   delete[] buf1; delete[] buf2;
 }
 
-void BM_memcpy_nocache(int iters, int size) {
+void BM_memcpy_nocache(impl_t *impl, int iters, int size) {
   unsigned char * buf1 = new unsigned char [buffer_size];
   unsigned char * buf2 = new unsigned char [buffer_size];
+
+  src_align  = ((uintptr_t) buf1) & (MAX_ALIGN - 1);
+  dest_align  = ((uintptr_t) buf2) & (MAX_ALIGN - 1);
 
   memset (buf1, 0xa5, buffer_size); memset (buf2, 0x5a, buffer_size);
 
   size_t offset = 0;
   start_timing();
   for (int i = 0; i < iters; ++i) {
-    memcpy(buf2 + offset, buf1 + offset, size);
+    CALL(impl, buf2 + offset, buf1 + offset, size);
     offset += std::max(4097, size + 1);
     if (offset >= buffer_size - size) offset = 0;
   }
@@ -68,16 +85,19 @@ void BM_memcpy_nocache(int iters, int size) {
   delete[] buf1; delete[] buf2;
 }
 
-void BM_memcpy_readcache(int iters, int size) {
+void BM_memcpy_readcache(impl_t *impl, int iters, int size) {
   unsigned char * buf1 = new unsigned char [size];
   unsigned char * buf2 = new unsigned char [buffer_size];
+
+  src_align  = ((uintptr_t) buf1) & (MAX_ALIGN - 1);
+  dest_align  = ((uintptr_t) buf2) & (MAX_ALIGN - 1);
 
   memset (buf1, 0xa5, size); memset (buf2, 0x5a, buffer_size);
 
   size_t offset = 0;
   start_timing();
   for (int i = 0; i < iters; ++i) {
-    memcpy(buf2 + offset, buf1, size);
+    CALL(impl, buf2 + offset, buf1, size);
     offset += std::max(4097, size + 1);
     if (offset >= buffer_size - size) offset = 0;
   }
@@ -86,30 +106,60 @@ void BM_memcpy_readcache(int iters, int size) {
   delete[] buf1; delete[] buf2;
 }
 
-double do_timing(std::function<void(int, int)> &fn, int size) {
+double do_timing(std::function<void(impl_t *, int, int)> &fn, impl_t *impl, int size) {
   int iters = 2; double time = 0;
   while (time < 500) {
     iters *= 3;
-    fn(iters, size);
+    fn(impl, iters, size);
     time = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
     bytes = (2UL * iters * size);
   }
   return time;
 }
 
-std::map<std::string, std::function<void(int, int)>> schemes =
+std::map<std::string, std::function<void(impl_t *, int, int)>> schemes =
   {{"Read and Write Cache", BM_memcpy_readwritecache},
    {"No Cache", BM_memcpy_nocache},
    {"Read Cache", BM_memcpy_readcache}};
 
-int main(void) {
-  std::cout << "      Size (bytes) Time (msec) BW (Gbytes/sec)" << std::endl;
+void test() {
+  std::cout << "Size(bytes) Alignment(src/dest) BW(Gbytes/sec)" << std::endl;
+  bool first = true;
+  FOR_EACH_IMPL (impl, 0)
+    {
+      if (!first)
+	std::cout << " ";
+      std::cout << impl->name;
+      first = false;
+    }
+  std::cout << std::endl;
   for (auto scheme : schemes) {
     std::cout << scheme.first << std::endl;
     for (auto size : size_list) {
-      int time = do_timing(scheme.second, size);
-      printf("%12d %10d %10.2f\n", size, time, (bytes * 1000L / time) / 1e9);
+      first = true;
+      FOR_EACH_IMPL (impl, 0)
+	{
+	  int time = do_timing(scheme.second, impl, size);
+	  if (first)
+	    {
+	      first = false;
+	      printf("%d %d/%-d %.2f",
+		     size, src_align, dest_align,
+		     (bytes * 1000L / time) / 1e9);
+	    }
+	  else
+	    printf(" %.2f",
+		   (bytes * 1000L / time) / 1e9);
+	}
+      printf ("\n");
     }
     std::cout << "----------------\n";
   }
 }
+
+int test_main(void) {
+  test_init ();
+  test ();
+  return 0;
+}
+#include <support/test-driver.c>
