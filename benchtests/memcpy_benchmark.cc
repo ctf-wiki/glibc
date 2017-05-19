@@ -122,11 +122,34 @@ std::map<std::string, std::function<void(impl_t *, int, int)>> schemes =
    {"No Cache", BM_memcpy_nocache},
    {"Read Cache", BM_memcpy_readcache}};
 
+const char *checks[]=
+{
+  "__memcpy_avx_unaligned",
+  "__memcpy_avx_unaligned_erms",
+  "__memcpy_sse2_unaligned",
+  "__memcpy_sse2_unaligned_erms",
+  "__memcpy_sse2_unaligned_2_19",
+  "__memcpy_erms",
+  NULL,
+};
+
+bool
+match (const char *name)
+{
+  int i;
+  for (i = 0; checks[i] != NULL; i++)
+    if (strcmp (checks[i], name) == 0)
+      return true;
+  return false;
+}
+
 void test() {
   std::cout << "Size(bytes) Alignment(src/dest) BW(Gbytes/sec)" << std::endl;
   bool first = true;
   FOR_EACH_IMPL (impl, 0)
     {
+      if (!match (impl->name))
+	continue;
       if (!first)
 	std::cout << " ";
       std::cout << impl->name;
@@ -139,6 +162,8 @@ void test() {
       first = true;
       FOR_EACH_IMPL (impl, 0)
 	{
+	  if (!match (impl->name))
+	    continue;
 	  int time = do_timing(scheme.second, impl, size);
 	  if (first)
 	    {
