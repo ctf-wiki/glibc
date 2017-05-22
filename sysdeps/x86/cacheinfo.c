@@ -23,6 +23,20 @@
 #include <cpuid.h>
 #include <init-arch.h>
 
+/* Threshold to use non temporal store.  */
+long int __x86_shared_non_temporal_threshold attribute_hidden;
+
+#if HAVE_TUNABLES
+# define TUNABLE_NAMESPACE x86_cache
+# include <elf/dl-tunables.h>
+
+void
+DL_TUNABLE_CALLBACK (set_non_temporal_threshold) (tunable_val_t *valp)
+{
+  __x86_shared_non_temporal_threshold = (long int) valp->numval;
+}
+#endif
+
 #define is_intel GLRO(dl_x86_cpu_features).kind == arch_kind_intel
 #define is_amd GLRO(dl_x86_cpu_features).kind == arch_kind_amd
 #define max_cpuid GLRO(dl_x86_cpu_features).max_cpuid
@@ -466,9 +480,6 @@ long int __x86_raw_shared_cache_size_half attribute_hidden = 1024 * 1024 / 2;
 /* Similar to __x86_shared_cache_size, but not rounded.  */
 long int __x86_raw_shared_cache_size attribute_hidden = 1024 * 1024;
 
-/* Threshold to use non temporal store.  */
-long int __x86_shared_non_temporal_threshold attribute_hidden;
-
 #ifndef DISABLE_PREFETCHW
 /* PREFETCHW support flag for use in memory and string routines.  */
 int __x86_prefetchw attribute_hidden;
@@ -770,4 +781,9 @@ intel_bug_no_cache_info:
      total shared cache size.  */
   __x86_shared_non_temporal_threshold
     = __x86_shared_cache_size * threads * 3 / 4;
+
+#if HAVE_TUNABLES
+  TUNABLE_SET_VAL_WITH_CALLBACK (non_temporal_threshold, NULL,
+				 set_non_temporal_threshold);
+#endif
 }
