@@ -557,20 +557,24 @@ START_THREAD_DEFN
   if (IS_DETACHED (pd))
     /* Free the TCB.  */
     __free_tcb (pd);
-  else if (__glibc_unlikely (pd->cancelhandling & SETXID_BITMASK))
+  else
     {
       /* Some other thread might call any of the setXid functions and expect
 	 us to reply.  In this case wait until we did that.  */
-      do
+      int s = atomic_load_relaxed (&pd->setxid_op);
+      if (__glibc_unlikely (s == 1))
+	{
 	/* XXX This differs from the typical futex_wait_simple pattern in that
 	   the futex_wait condition (setxid_futex) is different from the
 	   condition used in the surrounding loop (cancelhandling).  We need
 	   to check and document why this is correct.  */
-	futex_wait_simple (&pd->setxid_futex, 0, FUTEX_PRIVATE);
-      while (pd->cancelhandling & SETXID_BITMASK);
+	  do
+	    futex_wait_simple (&pd->setxid_futex, 0, FUTEX_PRIVATE);
+	  while (atomic_compare_exchange_weak_acquire (&pd->setxid_op, &s, 1));
 
-      /* Reset the value so that the stack can be reused.  */
-      pd->setxid_futex = 0;
+	  /* Reset the value so that the stack can be reused.  */
+	  pd->setxid_futex = 0;
+	}
     }
 
   /* We cannot call '_exit' here.  '_exit' will terminate the process.

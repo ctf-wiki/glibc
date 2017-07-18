@@ -297,7 +297,7 @@ include the header files @file{sys/types.h} and @file{unistd.h}.
 @c    nptl to propagate the syscall to all cloned processes used to
 @c    implement threads.
 @c   nptl_setxid @asulock @aculock
-@c     while holding the stack_alloc_lock, mark with SETXID_BITMASK all
+@c     while holding the stack_alloc_lock, mark setxid_op for all
 @c     threads that are not exiting, signal them until no thread remains
 @c     marked, clear the marks and run the syscall, then release the lock.
 @c    lll_lock @asulock @aculock
@@ -305,13 +305,12 @@ include the header files @file{sys/types.h} and @file{unistd.h}.
 @c    list_entry ok
 @c    setxid_mark_thread ok
 @c      if a thread is initializing, wait for it to be cloned.
-@c      mark it with SETXID_BITMASK if it's not exiting
+@c      mark setxid_opt if it's not exiting
 @c    setxid_signal_thread ok
-@c      if a thread is marked with SETXID_BITMASK,
+@c      if a setxid_opt is marked,
 @c        send it the SIGSETXID signal
 @c    setxid_unmark_thread ok
-@c      clear SETXID_BITMASK and release the futex if SETXID_BITMASK is
-@c      set.
+@c      unmark setxid_op release the futex if setxid_op is marked.
 @c    <syscall> ok
 @c    lll_unlock @aculock
 @c
