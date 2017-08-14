@@ -42,6 +42,7 @@
 #define FLAG_MIPS_LIB32_NAN2008		0x0c00
 #define FLAG_MIPS64_LIBN32_NAN2008	0x0d00
 #define FLAG_MIPS64_LIBN64_NAN2008	0x0e00
+#define FLAG_AARCH64_LIB32		0x0f00
 
 /* Name of auxiliary cache.  */
 #define _PATH_LDCONFIG_AUX_CACHE "/var/cache/ldconfig/aux-cache"
