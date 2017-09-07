@@ -168,6 +168,7 @@ libc {
   }
   GLIBC_2.27 {
     __ntp_gettime_t64;
+    __ntp_gettimex_t64;
   }
   GLIBC_PRIVATE {
     # functions used in other libraries
