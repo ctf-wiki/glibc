@@ -37,6 +37,8 @@ extern __mode_t __umask (__mode_t __mask);
 extern int __mkdir (const char *__path, __mode_t __mode);
 extern int __mknod (const char *__path,
 		    __mode_t __mode, __dev_t __dev);
+extern int __fxstat64_t64 (int __ver, int __fildes,
+                           struct __stat64_t64 *__stat_buf);
 #if IS_IN (libc) || IS_IN (rtld)
 hidden_proto (__fxstat)
 hidden_proto (__fxstat64)
