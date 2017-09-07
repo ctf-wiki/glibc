@@ -166,6 +166,9 @@ libc {
   GLIBC_2.15 {
     process_vm_readv; process_vm_writev;
   }
+  GLIBC_2.27 {
+    __ntp_gettime_t64;
+  }
   GLIBC_PRIVATE {
     # functions used in other libraries
     __syscall_rt_sigqueueinfo;
