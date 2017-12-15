@@ -16,6 +16,8 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#include "math_config.h"
+
 /* Chebyshev constants for cos, range -PI/4 - PI/4.  */
 static const double C0 = -0x1.ffffffffe98aep-2;
 static const double C1 =  0x1.55555545c50c7p-5;
@@ -48,27 +50,9 @@ static const double inv_PI_4 = 0x1.45f306dc9c883p+0; /* 4/PI.  */
 #define FLOAT_EXPONENT_SHIFT 23
 #define FLOAT_EXPONENT_BIAS 127
 
-static const double pio2_table[] = {
-  0 * M_PI_2,
-  1 * M_PI_2,
-  2 * M_PI_2,
-  3 * M_PI_2,
-  4 * M_PI_2,
-  5 * M_PI_2
-};
-
-static const double invpio4_table[] = {
-  0x0p+0,
-  0x1.45f306cp+0,
-  0x1.c9c882ap-28,
-  0x1.4fe13a8p-58,
-  0x1.f47d4dp-85,
-  0x1.bb81b6cp-112,
-  0x1.4acc9ep-142,
-  0x1.0e4107cp-169
-};
-
-static const double ones[] = { 1.0, -1.0 };
+#define pio2_table	__sincosf_data.pio2_table
+#define invpio4_table	__sincosf_data.invpio4_table
+#define ones		__sincosf_data.ones
 
 /* Compute the sine value using Chebyshev polynomials where
    THETA is the range reduced absolute value of the input

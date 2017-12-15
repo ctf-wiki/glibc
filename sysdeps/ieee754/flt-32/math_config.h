@@ -161,4 +161,15 @@ extern const struct powf_log2_data
   double poly[POWF_LOG2_POLY_ORDER];
 } __powf_log2_data attribute_hidden;
 
+/* Shared between sinf, cosf and sincosf.  */
+#define SINCOSF_PIO2_TABLE	6
+#define SINCOSF_INVPIO4_TABLE	8
+#define SINCOSF_DOUBLE_ONES	2
+extern const struct sincosf_data
+{
+  double pio2_table[SINCOSF_PIO2_TABLE];
+  double invpio4_table[SINCOSF_INVPIO4_TABLE];
+  double ones[SINCOSF_DOUBLE_ONES];
+} __sincosf_data attribute_hidden;
+
 #endif
