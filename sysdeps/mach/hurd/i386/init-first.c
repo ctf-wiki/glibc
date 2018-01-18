@@ -196,7 +196,8 @@ init (int *data)
       assert (d->phdrsz % sizeof (ElfW(Phdr)) == 0);
     }
 
-  /* We need to setup TLS before starting the signal thread.  */
+  /* We need to setup TLS before starting sigthread and set stack guard.  */
+  __libc_setup_tls ();
   extern void __pthread_initialize_minimal (void);
   if (__pthread_initialize_minimal != NULL)
     __pthread_initialize_minimal ();
