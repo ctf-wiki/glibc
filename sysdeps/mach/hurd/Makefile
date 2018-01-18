@@ -170,6 +170,10 @@ $(objpfx)librtld.map: $(rpcuserlibs:.so=_pic.a)
 CFLAGS-dl-load.c = -DEXTERNAL_MAP_FROM_FD
 endif
 
+ifeq ($(subdir),posix)
+CFLAGS-confstr.c += -DLIBPTHREAD_VERSION='"libpthread 0.3"'
+endif
+
 # Override the generic Makeconfig values so we link against the RPC libs.
 link-libc-static := -Wl,--start-group \
 		    $(patsubst %,$(common-objpfx)%.a,\
