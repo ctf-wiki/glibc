@@ -52,6 +52,15 @@ typedef struct
 #define TLS_TCB_AT_TP	1
 #define TLS_DTV_AT_TP	0
 
+/* Alignment requirement for TCB.
+
+   Some processors such as Intel Atom pay a big penalty on every
+   access using a segment override if that segment's base is not
+   aligned to the size of a cache line.  (See Intel 64 and IA-32
+   Architectures Optimization Reference Manual, section 13.3.3.3,
+   "Segment Base".)  On such machines, a cache line is 64 bytes.  */
+#define TCB_ALIGNMENT		64
+
 #ifndef __ASSEMBLER__
 
 /* Use i386-specific RPCs to arrange that %gs segment register prefix
@@ -61,6 +70,8 @@ typedef struct
 # ifndef HAVE_I386_SET_GDT
 #  define __i386_set_gdt(thr, sel, desc) ((void) (thr), (void) (sel), (void) (desc), MIG_BAD_ID)
 # endif
+
+#define __i386_selector_is_ldt(sel) (!!((sel) & 4))
 
 # include <errno.h>
 # include <assert.h>
@@ -93,7 +104,7 @@ _hurd_tls_init (tcbhead_t *tcb)
 
   /* Get the first available selector.  */
   int sel = -1;
-  error_t err = __i386_set_gdt (tcb->self, &sel, desc);
+  kern_return_t err = __i386_set_gdt (tcb->self, &sel, desc);
   if (err == MIG_BAD_ID)
     {
       /* Old kernel, use a per-thread LDT.  */
@@ -141,9 +152,9 @@ _hurd_tls_init (tcbhead_t *tcb)
 
 # include <mach/machine/thread_status.h>
 
-/* Set up TLS in the new thread of a fork child, copying from our own.  */
-static inline error_t __attribute__ ((unused))
-_hurd_tls_fork (thread_t child, struct i386_thread_state *state)
+/* Set up TLS in the new thread of a fork child, copying from the original.  */
+static inline kern_return_t __attribute__ ((unused))
+_hurd_tls_fork (thread_t child, thread_t orig, struct i386_thread_state *state)
 {
   /* Fetch the selector set by _hurd_tls_init.  */
   int sel;
@@ -151,11 +162,44 @@ _hurd_tls_fork (thread_t child, struct i386_thread_state *state)
   if (sel == state->ds)		/* _hurd_tls_init was never called.  */
     return 0;
 
-  tcbhead_t *const tcb = THREAD_SELF;
-  HURD_TLS_DESC_DECL (desc, tcb);
-  error_t err;
+  struct descriptor desc, *_desc = &desc;
+  kern_return_t err;
+  unsigned int count = 1;
 
-  if (__builtin_expect (sel, 0x50) & 4) /* LDT selector */
+  if (__glibc_unlikely (__i386_selector_is_ldt(sel)))
+    err = __i386_get_ldt (orig, sel, 1, &_desc, &count);
+  else
+    err = __i386_get_gdt (orig, sel, &desc);
+
+  assert_perror (err);
+  if (err)
+    return err;
+
+  if (__glibc_unlikely (__i386_selector_is_ldt(sel)))
+    err = __i386_set_ldt (child, sel, &desc, 1);
+  else
+    err = __i386_set_gdt (child, &sel, desc);
+
+  state->gs = sel;
+  return err;
+}
+
+static inline kern_return_t __attribute__ ((unused))
+_hurd_tls_new (thread_t child, struct i386_thread_state *state, tcbhead_t *tcb)
+{
+  /* Fetch the selector set by _hurd_tls_init.  */
+  int sel;
+  asm ("mov %%gs, %w0" : "=q" (sel) : "0" (0));
+  if (sel == state->ds)		/* _hurd_tls_init was never called.  */
+    return 0;
+
+  HURD_TLS_DESC_DECL (desc, tcb);
+  kern_return_t err;
+
+  tcb->tcb = tcb;
+  tcb->self = child;
+
+  if (__glibc_unlikely (__i386_selector_is_ldt(sel)))
     err = __i386_set_ldt (child, sel, &desc, 1);
   else
     err = __i386_set_gdt (child, &sel, desc);

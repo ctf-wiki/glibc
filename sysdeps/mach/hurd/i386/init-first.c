@@ -109,32 +109,10 @@ init1 (int argc, char *arg0, ...)
      then after the environment pointers there is no Hurd
      data block; the argument strings start there.  */
   if ((void *) d == argv[0])
-    {
-#ifndef SHARED
-      /* With a new enough linker (binutils-2.23 or better),
-         the magic __ehdr_start symbol will be available and
-         __libc_start_main will have done this that way already.  */
-      if (_dl_phdr == NULL)
-        {
-          /* We may need to see our own phdrs, e.g. for TLS setup.
-             Try the usual kludge to find the headers without help from
-             the exec server.  */
-          extern const void __executable_start;
-          const ElfW(Ehdr) *const ehdr = &__executable_start;
-          _dl_phdr = (const void *) ehdr + ehdr->e_phoff;
-          _dl_phnum = ehdr->e_phnum;
-          assert (ehdr->e_phentsize == sizeof (ElfW(Phdr)));
-        }
-#endif
-      return;
-    }
+    return;
 
 #ifndef SHARED
   __libc_enable_secure = d->flags & EXEC_SECURE;
-
-  _dl_phdr = (ElfW(Phdr) *) d->phdr;
-  _dl_phnum = d->phdrsz / sizeof (ElfW(Phdr));
-  assert (d->phdrsz % sizeof (ElfW(Phdr)) == 0);
 #endif
 
   _hurd_init_dtable = d->dtable;
@@ -189,6 +167,40 @@ init (int *data)
   while (*envp)
     ++envp;
   d = (void *) ++envp;
+
+#ifndef SHARED
+  /* If we are the bootstrap task started by the kernel,
+     then after the environment pointers there is no Hurd
+     data block; the argument strings start there.  */
+  if ((void *) d == argv[0])
+    {
+      /* With a new enough linker (binutils-2.23 or better),
+	 the magic __ehdr_start symbol will be available and
+	 __libc_start_main will have done this that way already.  */
+      if (_dl_phdr == NULL)
+        {
+	  /* We may need to see our own phdrs, e.g. for TLS setup.
+	     Try the usual kludge to find the headers without help from
+	     the exec server.  */
+	  extern const void __executable_start;
+	  const ElfW(Ehdr) *const ehdr = &__executable_start;
+	  _dl_phdr = (const void *) ehdr + ehdr->e_phoff;
+	  _dl_phnum = ehdr->e_phnum;
+	  assert (ehdr->e_phentsize == sizeof (ElfW(Phdr)));
+        }
+    }
+  else
+    {
+      _dl_phdr = (ElfW(Phdr) *) d->phdr;
+      _dl_phnum = d->phdrsz / sizeof (ElfW(Phdr));
+      assert (d->phdrsz % sizeof (ElfW(Phdr)) == 0);
+    }
+
+  /* We need to setup TLS before starting the signal thread.  */
+  extern void __pthread_initialize_minimal (void);
+  if (__pthread_initialize_minimal != NULL)
+    __pthread_initialize_minimal ();
+#endif
 
   /* The user might have defined a value for this, to get more variables.
      Otherwise it will be zero on startup.  We must make sure it is set
