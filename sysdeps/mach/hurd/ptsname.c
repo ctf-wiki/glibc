@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <hurd.h>
 #include <hurd/fd.h>
 #include <hurd/term.h>
@@ -38,11 +39,10 @@ ptsname (int fd)
 }
 
 
-/* Store at most BUFLEN characters of the pathname of the slave pseudo
-   terminal associated with the master FD is open on in BUF.
-   Return 0 on success, otherwise an error number.  */
+/* We can't make use of STP, but do it that way for conformity with the Linux
+   version...  */
 int
-__ptsname_r (int fd, char *buf, size_t buflen)
+__ptsname_internal (int fd, char *buf, size_t buflen, struct stat64 *stp)
 {
   string_t peername;
   size_t len;
@@ -60,5 +60,15 @@ __ptsname_r (int fd, char *buf, size_t buflen)
 
   memcpy (buf, peername, len);
   return 0;
+}
+
+
+/* Store at most BUFLEN characters of the pathname of the slave pseudo
+   terminal associated with the master FD is open on in BUF.
+   Return 0 on success, otherwise an error number.  */
+int
+__ptsname_r (int fd, char *buf, size_t buflen)
+{
+  return __ptsname_internal (fd, buf, buflen, NULL);
 }
 weak_alias (__ptsname_r, ptsname_r)
