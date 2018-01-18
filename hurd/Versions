@@ -132,6 +132,12 @@ libc {
   GLIBC_2.27 {
     # "quasi-internal" functions
     _hurd_exec_paths;
+    # These always existed as inlines but the real functions were not exported.
+    _hurd_fd_error_signal; _hurd_fd_error;
+    __hurd_dfail; __hurd_sockfail;
+    __hurd_threadvar_location_from_sp;
+    __hurd_threadvar_location;
+    _hurd_userlink_link; _hurd_userlink_unlink; _hurd_userlink_clear;
   }
 
   HURD_CTHREADS_0.3 {
