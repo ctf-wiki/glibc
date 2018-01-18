@@ -271,7 +271,7 @@ struct rtld_global_ro _rtld_global_ro attribute_relro =
 #endif
     ._dl_lazy = 1,
     ._dl_fpu_control = _FPU_DEFAULT,
-    ._dl_pagesize = EXEC_PAGESIZE,
+    ._dl_pagesize = /* EXEC_PAGESIZE */ 4096,
     ._dl_inhibit_cache = 0,
 
     /* Function pointers.  */
