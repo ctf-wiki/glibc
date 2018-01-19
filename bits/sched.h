@@ -17,6 +17,8 @@
    License along with the GNU C Library; if not, see
    <http://www.gnu.org/licenses/>.  */
 
+#ifndef __need_schedparam
+
 #ifndef _BITS_SCHED_H
 #define _BITS_SCHED_H 1
 
@@ -32,7 +34,20 @@
 /* Data structure to describe a process' schedulability.  */
 struct sched_param
 {
-  int sched_priority;
+  int __sched_priority;
 };
 
 #endif /* bits/sched.h */
+
+#endif	/* need schedparam */
+
+#if !defined __defined_schedparam \
+    && (defined __need_schedparam || defined _SCHED_H)
+# define __defined_schedparam	1
+/* Data structure to describe a process' schedulability.  */
+struct __sched_param
+  {
+    int __sched_priority;
+  };
+# undef __need_schedparam
+#endif
