@@ -43,6 +43,10 @@ typedef struct
   void *__private_tm[4];
   /* GCC split stack support.  */
   void *__private_ss;
+
+  /* Keep this field last */
+  mach_port_t reply_port;      /* This thread's reply port.  */
+  struct hurd_sigstate *_hurd_sigstate;
 } tcbhead_t;
 #endif
 
@@ -89,6 +93,17 @@ typedef struct
       | (((unsigned int) (tcb)) & 0xff000000) /* base 24..31 */		      \
     }
 
+# define HURD_DESC_TLS(desc)						      \
+  ({									      \
+   (tcbhead_t *) (   (desc->low_word >> 16)				      \
+                  | ((desc->high_word & 0xff) << 16)			      \
+                  |  (desc->high_word & 0xff000000)			      \
+     );})
+
+#define __LIBC_NO_TLS()							      \
+  ({ unsigned short ds, gs;						      \
+     asm ("movw %%ds,%w0; movw %%gs,%w1" : "=q" (ds), "=q" (gs));	      \
+     ds == gs; })
 
 static inline const char * __attribute__ ((unused))
 _hurd_tls_init (tcbhead_t *tcb)
@@ -138,6 +153,20 @@ _hurd_tls_init (tcbhead_t *tcb)
      __asm__ ("movl %%gs:%c1,%0" : "=r" (__tcb)				      \
 	      : "i" (offsetof (tcbhead_t, tcb)));			      \
      __tcb;})
+
+/* Return the TCB address of a thread given its state.  */
+# define THREAD_TCB(thread, thread_state)				      \
+  ({ int __sel = (thread_state)->basic.gs;				      \
+     struct descriptor __desc, *___desc = &__desc;			      \
+     unsigned int __count = 1;						      \
+     kern_return_t __err;						      \
+     if (__builtin_expect (__sel, 0x48) & 4) /* LDT selector */		      \
+       __err = __i386_get_ldt ((thread), __sel, 1, &___desc, &__count);	      \
+     else								      \
+       __err = __i386_get_gdt ((thread), __sel, &__desc);		      \
+     assert_perror (__err);						      \
+     assert (__count == 1);						      \
+     HURD_DESC_TLS(___desc);})
 
 /* Install new dtv for current thread.  */
 # define INSTALL_NEW_DTV(dtvp)						      \
