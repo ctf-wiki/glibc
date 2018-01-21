@@ -42,7 +42,7 @@
 #include <spin-lock.h>
 struct hurd_signal_preemptor;	/* <hurd/sigpreempt.h> */
 #if defined __USE_EXTERN_INLINES && defined _LIBC
-#  if IS_IN (libc)
+#  if IS_IN (libc) || IS_IN (libpthread)
 #    include <sigsetops.h>
 #  endif
 #endif
