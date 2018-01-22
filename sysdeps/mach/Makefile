@@ -62,6 +62,7 @@ else ifeq (nis,$(subdir))
 else ifeq (nss,$(subdir))
   LDLIBS-nss.so += $(objdir)/mach/libmachuser.so
   LDLIBS-nss_files.so += $(objdir)/mach/libmachuser.so
+  LDLIBS-nss_db.so += $(objdir)/mach/libmachuser.so
   LDLIBS-nss_compat.so += $(objdir)/mach/libmachuser.so
 else ifeq (hesiod,$(subdir))
   LDLIBS-nss_hesiod.so += $(objdir)/mach/libmachuser.so
