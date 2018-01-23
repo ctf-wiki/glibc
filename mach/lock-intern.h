@@ -48,7 +48,7 @@ __spin_lock_init (__spin_lock_t *__lock)
 
 /* Lock the spin lock LOCK.  */
 
-void __spin_lock (__spin_lock_t *__lock)
+void __spin_lock (__spin_lock_t *__lock);
 
 #if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
@@ -98,7 +98,7 @@ extern void __mutex_init (void *__lock);
 
 /* Lock the mutex lock LOCK.  */
 
-void __mutex_lock (void *__lock)
+void __mutex_lock (void *__lock);
 
 #if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
@@ -110,7 +110,7 @@ __mutex_lock (void *__lock)
 
 /* Unlock the mutex lock LOCK.  */
 
-void __mutex_unlock (void *__lock)
+void __mutex_unlock (void *__lock);
 
 #if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
@@ -121,7 +121,7 @@ __mutex_unlock (void *__lock)
 #endif
 
 
-int __mutex_trylock (void *__lock)
+int __mutex_trylock (void *__lock);
 
 #if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE int
