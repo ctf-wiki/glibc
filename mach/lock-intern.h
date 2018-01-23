@@ -35,20 +35,28 @@ typedef unsigned int __spin_lock_t;
 
 /* Initialize LOCK.  */
 
+void __spin_lock_init (__spin_lock_t *__lock)
+
+#if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
 __spin_lock_init (__spin_lock_t *__lock)
 {
   *__lock = LLL_INITIALIZER;
 }
+#endif
 
 
 /* Lock the spin lock LOCK.  */
 
+void __spin_lock (__spin_lock_t *__lock)
+
+#if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
 __spin_lock (__spin_lock_t *__lock)
 {
   lll_lock (__lock, 0);
 }
+#endif
 
 /* Unlock LOCK. */
 void __spin_unlock (__spin_lock_t *__lock);
@@ -90,25 +98,37 @@ extern void __mutex_init (void *__lock);
 
 /* Lock the mutex lock LOCK.  */
 
+void __mutex_lock (void *__lock)
+
+#if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
 __mutex_lock (void *__lock)
 {
   __spin_lock ((__spin_lock_t *)__lock);
 }
+#endif
 
 /* Unlock the mutex lock LOCK.  */
 
+void __mutex_unlock (void *__lock)
+
+#if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
 __mutex_unlock (void *__lock)
 {
   __spin_unlock ((__spin_lock_t *)__lock);
 }
+#endif
 
 
+int __mutex_trylock (void *__lock)
+
+#if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE int
 __mutex_trylock (void *__lock)
 {
   return (__spin_try_lock ((__spin_lock_t *)__lock));
 }
+#endif
 
 #endif /* lock-intern.h */
