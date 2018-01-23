@@ -35,7 +35,7 @@ typedef unsigned int __spin_lock_t;
 
 /* Initialize LOCK.  */
 
-void __spin_lock_init (__spin_lock_t *__lock)
+void __spin_lock_init (__spin_lock_t *__lock);
 
 #if defined __USE_EXTERN_INLINES && defined _LIBC
 _EXTERN_INLINE void
