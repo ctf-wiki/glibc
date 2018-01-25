@@ -77,6 +77,11 @@ static const struct pthread_functions pthread_functions =
   };
 #endif /* IS_IN (libpthread) */
 
+static void none(void)
+{
+}
+text_set_element (__pthread_init, none);
+
 /* Initialize the pthreads library.  */
 void
 ___pthread_init (void)

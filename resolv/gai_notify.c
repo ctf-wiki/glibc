@@ -31,7 +31,9 @@ struct notify_func
 static void *
 notify_func_wrapper (void *arg)
 {
+#ifdef gai_start_notify_thread
   gai_start_notify_thread ();
+#endif
   struct notify_func *const n = arg;
   void (*func) (sigval_t) = n->func;
   sigval_t value = n->value;
