@@ -28,7 +28,7 @@ int
 __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
 {
   struct __pthread *wakeup;
-  
+
   __pthread_spin_lock (&rwlock->__lock);
 
   assert (__pthread_spin_trylock (&rwlock->__held) == EBUSY);
@@ -44,7 +44,7 @@ __pthread_rwlock_unlock (pthread_rwlock_t *rwlock)
   if (rwlock->__readers == 1)
     /* Last reader.  */
     rwlock->__readers = 0;
-      
+
 
   /* Wake someone else up.  Try the writer queue first, then the
      reader queue if that is empty.  */

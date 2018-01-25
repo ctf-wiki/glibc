@@ -109,11 +109,11 @@ main (int argc, char **argv)
   /* Read lock it.  */
   err = pthread_rwlock_tryrdlock (&lock);
   assert (err == 0);
-  
+
   /* Try to write lock it.  It should fail with EBUSY.  */
   err = pthread_rwlock_trywrlock (&lock);
   assert (err == EBUSY);
-  
+
   /* Drop the read lock.  */
   err = pthread_rwlock_unlock (&lock);
   assert (err == 0);

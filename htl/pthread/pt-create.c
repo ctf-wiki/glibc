@@ -185,7 +185,7 @@ __pthread_create_internal (struct __pthread **thread,
   else
     err = __pthread_sigstate (_pthread_self (), 0, 0, &sigset, 0);
   assert_perror (err);
-   
+
   err = __pthread_sigstate (pthread, SIG_SETMASK, &sigset, 0, 1);
   assert_perror (err);
 

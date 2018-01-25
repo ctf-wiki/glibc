@@ -46,6 +46,6 @@ pthread_attr_setstack (pthread_attr_t *attr,
 
       return err;
     }
-      
+
   return 0;
 }

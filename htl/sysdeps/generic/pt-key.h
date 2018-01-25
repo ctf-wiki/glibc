@@ -30,7 +30,7 @@
 /* __PTHREAD_KEY_DESTRUCTORS is an array of destructors with
    __PTHREAD_KEY_SIZE elements.  If an element with index less than
    __PTHREAD_KEY_COUNT is invalid, it shall contain the value
-   PTHREAD_KEY_INVALID which shall be distinct from NULL.  
+   PTHREAD_KEY_INVALID which shall be distinct from NULL.
 
    Normally, we just add new keys to the end of the array and realloc
    it as necessary.  The pthread_key_create routine may decide to

@@ -163,7 +163,7 @@ ifeq ($(IN_GLIBC),no)
 SRCS := $(addsuffix .c,$(libpthread-routines))
 OBJS = $(addsuffix .o,$(basename $(notdir $(SRCS))))
 
-OTHERTAGS = 
+OTHERTAGS =
 
 libname = libpthread
 endif
@@ -360,10 +360,10 @@ maintainer.;								\
 	fi
 
 #  ifeq ($(VERSIONING),yes)
-#  
+#
 #  # Adding this dependency gets it included in the command line,
 #  # where ld will read it as a linker script.
 #  $(libname).so.$(hurd-version): $(srcdir)/$(libname).map
-#  
+#
 #  endif
 endif

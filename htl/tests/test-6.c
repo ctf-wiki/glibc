@@ -50,7 +50,7 @@ main (int argc, char **argv)
     error (1, err, "pthread_barrier_init");
 
   for (j = 0; j < WAITS; j ++)
-    {    
+    {
 
       for (i = 0; i < THREADS; i ++)
 	{

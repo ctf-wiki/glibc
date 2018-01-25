@@ -23,7 +23,7 @@ thr (void *arg)
       assert (pthread_getspecific (key[i]) == NULL);
       printf ("pthread_setspecific(%d, %d).\n", key[i], pthread_self ());
       err = pthread_setspecific (key[i], (void *) pthread_self ());
-      printf ("pthread_setspecific(%d, %d) => %d.\n", key[i], pthread_self (), err);      
+      printf ("pthread_setspecific(%d, %d) => %d.\n", key[i], pthread_self (), err);
       assert_perror (err);
     }
 

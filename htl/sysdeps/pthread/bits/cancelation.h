@@ -41,7 +41,7 @@ struct __pthread_cancelation_handler **__pthread_get_cleanup_stack (void);
 	      *__handlers \
 	    }; \
 	  *__handlers = &__handler;
-	  
+
 #define __pthread_cleanup_pop(execute) \
 	  if (execute) \
 	    __handler.__handler (__handler.__arg); \

@@ -29,9 +29,9 @@ int __pthread_attr_setdetachstate (pthread_attr_t *, int);
 int __pthread_attr_getinheritsched (const pthread_attr_t *, int *);
 int __pthread_attr_setinheritsched (pthread_attr_t *, int);
 int __pthread_attr_getschedparam (const pthread_attr_t *,
-    				 struct sched_param *);
+				 struct sched_param *);
 int __pthread_attr_setschedparam (pthread_attr_t *,
-    				 const struct sched_param *);
+				 const struct sched_param *);
 int __pthread_attr_getschedpolicy (const pthread_attr_t *, int *);
 int __pthread_attr_setschedpolicy (pthread_attr_t *, int);
 int __pthread_attr_getscope (const pthread_attr_t *, int *);
@@ -41,19 +41,19 @@ int __pthread_condattr_init (pthread_condattr_t *);
 int __pthread_cond_broadcast (pthread_cond_t *);
 int __pthread_cond_destroy (pthread_cond_t *);
 int __pthread_cond_init (pthread_cond_t *,
-    		       const pthread_condattr_t *);
+		       const pthread_condattr_t *);
 int __pthread_cond_signal (pthread_cond_t *);
 int __pthread_cond_wait (pthread_cond_t *, pthread_mutex_t *);
 int __pthread_cond_timedwait (pthread_cond_t *, pthread_mutex_t *,
-    			     const struct timespec *);
+			     const struct timespec *);
 int __pthread_equal (pthread_t, pthread_t);
 void __pthread_exit (void *);
 int __pthread_getschedparam (pthread_t, int *, struct sched_param *);
 int __pthread_setschedparam (pthread_t, int,
-    			    const struct sched_param *);
+			    const struct sched_param *);
 int _pthread_mutex_destroy (pthread_mutex_t *);
 int _pthread_mutex_init (pthread_mutex_t *,
-    			 const pthread_mutexattr_t *);
+			 const pthread_mutexattr_t *);
 int __pthread_mutex_lock (pthread_mutex_t *);
 int __pthread_mutex_trylock (pthread_mutex_t *);
 int __pthread_mutex_unlock (pthread_mutex_t *);

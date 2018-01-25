@@ -28,7 +28,7 @@
 /* This braindamage is necessary because the standard says that some
    of the threads functions "shall fail" if "No thread could be found
    corresponding to that specified by the given thread ID."  */
-   
+
 /* Thread ID lookup table.  */
 struct __pthread **__pthread_threads;
 

@@ -47,7 +47,7 @@ __pthread_do_cancel (struct __pthread *p)
   else
     {
       error_t err;
-      
+
       err = __thread_suspend (p->kernel_thread);
       assert_perror (err);
 
