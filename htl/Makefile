@@ -278,7 +278,7 @@ $(inst_libdir)/libpthread2_pic.a: $(inst_libdir)/libpthread_pic.a
 ifeq ($(IN_GLIBC),yes)
 libc-link.so = $(common-objpfx)libc.so
 
-extra-B-pthread.so = -B$(common-objpfx)libpthread/
+extra-B-pthread.so = -B$(common-objpfx)htl/
 
 include ../Rules
 
