@@ -3,3 +3,9 @@
 gnu
 # The Hurd provides a rough superset of the functionality of 4.4 BSD.
 unix/bsd
+htl
+../htl/sysdeps/mach/hurd
+../htl/sysdeps/hurd
+../htl/sysdeps/mach
+../htl/sysdeps/posix
+../htl/sysdeps/generic

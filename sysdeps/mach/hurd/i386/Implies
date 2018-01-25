@@ -1,1 +1,3 @@
 mach/hurd/x86
+../htl/sysdeps/mach/hurd/i386
+../htl/sysdeps/i386
