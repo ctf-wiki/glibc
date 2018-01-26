@@ -314,15 +314,6 @@ $(addprefix $(objpfx), \
 endif
 
 generated += libpthread_nonshared.a
-
-# Depend on libc.so so a DT_NEEDED is generated in the shared objects.
-# This ensures they will load libc.so for needed symbols if loaded by
-# a statically-linked program that hasn't already loaded it.
-# Depend on ld.so too to get proper versions of ld.so symbols.
-$(objpfx)libpthread.so: $(libc-link.so) $(common-objpfx)libc_nonshared.a \
-			$(if $(filter yes,$(elf)), $(elf-objpfx)/ld.so) \
-			$(common-objpfx)/mach/libmachuser.so \
-			$(common-objpfx)/hurd/libhurduser.so
 endif
 
 ifeq ($(IN_GLIBC),no)

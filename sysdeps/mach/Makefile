@@ -72,4 +72,6 @@ else ifeq (posix,$(subdir))
   LDLIBS-tst-rfc3484-3 += $(objdir)/mach/libmachuser.so
 endif
 
+LDLIBS-pthread.so += $(objdir)/mach/libmachuser.so
+
 endif	# in-Makerules
